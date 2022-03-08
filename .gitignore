@@ -23,6 +23,8 @@ build
 # Coverage directory used by tools like istanbul
 coverage
 *.lcov
+# Coverage directory used by tools like istanbul
+# Coverage directory used by tools like istanbul
 
 # nyc test coverage
 .nyc_output
