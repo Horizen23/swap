@@ -7,13 +7,18 @@ import { ButtonInport, LogoToken, Name, WrapToken } from "../component/PopupAddT
 import { isAddress } from "ethers/lib/utils";
 import { useAppDispatch } from "../hook";
 import { LoaderSpinner } from "./Swap";
-import { useListToken, useSwapActionHandlers, useSwapState } from "./hook";
+import { useAddliquidity, useListToken, useSwapActionHandlers, useSwapState } from "../hook/swap";
+import { useAddliquidityHandlers } from "../hook/addliquidity";
 
 
-export default function Popup({setonCurrencySelect,Field}:any) {
+export default function Popup({setonCurrencySelect,Field,action}:any) {
     const  [listtoken, error, pending,inputaddress, searchToken] = useListToken()
-    const {INPUT,OUTPUT} = useSwapState()
+    let {INPUT,OUTPUT} = useSwapState()
+    // let {INPUT,OUTPUT} = useAddliquidity()
+
     const {onCurrencySelection} = useSwapActionHandlers();
+    const { onCurrencySelection:liquidity }= useAddliquidityHandlers()
+   
     const active = (tn:any):boolean=>{
         let b;
         if(tn.type=='native'){
@@ -22,6 +27,15 @@ export default function Popup({setonCurrencySelect,Field}:any) {
             b = (tn.address==INPUT.key)||(tn.address==OUTPUT.key);  
         }
         return b;
+    }
+    function hadderCLick(value:any){
+        if(action=='swap'){
+            onCurrencySelection(Field,value)
+        }else{
+            liquidity(Field,value)
+        }
+        setonCurrencySelect(0)
+
     }
     return (
         <Container>
@@ -38,8 +52,7 @@ export default function Popup({setonCurrencySelect,Field}:any) {
                 <ContentListToken>
                     {!pending?Object.entries(listtoken).map(([key, value]:any) =>
                                 <WrapToken style={(active(value))?{opacity:'0.3'}:{}} key={key} onClick={()=>{
-                                    onCurrencySelection(Field,value)
-                                    setonCurrencySelect(0)
+                                    hadderCLick(value)
                                 }}>
                                 <LogoToken   src={value.logoURI}/>
                                 <Name >

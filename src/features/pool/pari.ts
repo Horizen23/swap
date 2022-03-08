@@ -3,21 +3,12 @@ import { store } from './../../store/index';
 import { createAction, createAsyncThunk, createReducer } from '@reduxjs/toolkit'
 import { gettoken, useTokenActive } from '../../hook/swap';
 var MaxUint256 = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-import { selectSwap, switchswap ,Field,Tokenseslect, typeInput, addpercent} from "./reducer"
 
 export const RoutingAPITrade = createAsyncThunk(
   'router/RoutingAPITrade',
   async (userData, { rejectWithValue }) => {
-    const State = store.getState();
-    const {swap:{INPUT,OUTPUT,typedValue,independentField},balance:{currency:{ETH:{address}}}} = State;
-    const type =  independentField==='INPUT'?'exactIn':'exactOut'
-    const {decimals} = gettoken(State,Field.INPUT)
-    // let decimalss = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))
-    // let amount = JSBI.lessThanOrEqual(decimalss, MaxUint256)?JSBI.BigInt((+typedValue as number)*1e+18):0
-    // let amount = JSBI.multiply(JSBI.BigInt((+typedValue as number)),decimalss)
-    let amount = JSBI.BigInt((+typedValue)*(10**decimals))
     try {
-        const response:Routerstate['router'] = await MHGWallet.api.searchRouterPart(INPUT, OUTPUT,amount.toString(),type,address as string);
+        const response:Routerstate['router'] = await MHGWallet.api.BalanceAll()
       return response;
     } catch (err:any) {
       return rejectWithValue(err.responseJSON)

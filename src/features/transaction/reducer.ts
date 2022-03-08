@@ -1,7 +1,7 @@
 import { tokenbalanceAsync, useloadWallet } from './../balance/balanceSlice';
 import { store } from './../../store/index';
 import { createAction, createAsyncThunk, createReducer } from '@reduxjs/toolkit'
-import { useSwapActionHandlers } from '../../component_swap/hook';
+import { useSwapActionHandlers } from '../../hook/swap';
 
 
 

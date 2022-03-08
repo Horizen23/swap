@@ -8,7 +8,7 @@ import Popup, { Container } from './Popup'
 import { useAppDispatch } from '../hook';
 import { selectcurrency, tokenbalanceAsync, useloadWallet } from '../features/balance/balanceSlice';
 import styled from 'styled-components';
-import { useSwap } from './hook';
+import { useSwap } from '../hook/swap';
 import { values } from 'underscore';
 export default function Notification() {
     const [s ,ss ] = useState(false);

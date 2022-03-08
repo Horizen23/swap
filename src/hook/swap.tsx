@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react"
 import { useSelector } from "react-redux";
 import { addtokendb, selectcurrency, selecttoken, selectTokendb, tokenbalanceAsync, useloadWallet } from "../features/balance/balanceSlice";
 import { selectSwap, switchswap ,Field,Tokenseslect, typeInput, addpercent} from "../features/swap/reducer"
-import { useAppDispatch, useAppSelector } from "../hook"
+import { useAppDispatch, useAppSelector } from "."
 import { RootState, AppThunk, store } from '../store';
 import { parseUnits } from '@ethersproject/units'
 import JSBI from 'jsbi'
@@ -13,7 +13,6 @@ import _ from "underscore";
 import { BigNumber as BN } from "ethers";
 import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
-window.Bn=BN;
 export function useSwapState(): RootState['swap'] {
     return useAppSelector((state:RootState) => state.swap, _.isEqual)
 }
@@ -45,16 +44,26 @@ export function useRouterpartPrice(): string|false {
 export function useRouterState(): RootState['router'] {
   return useAppSelector((state:RootState) => {return state.router}, _.isEqual)
 }
-export function useTokenActive(Field:Field):any{
+export function useTokenActive(Field:Field,action:string=''):any{
      return useAppSelector((state:RootState) =>{
-        return gettoken(state,Field)
+        return gettoken(state,Field,action)
      })
 }
-export function gettoken(state:RootState,Field:Field):any{
+export function useAddliquidity():RootState['addliquidity']{
+  return useAppSelector((state:RootState) =>{
+     return state.addliquidity
+  })
+}
+export function gettoken(state:RootState,Field:Field,action:string=''):any{
   const currency = state.balance.currency
   const Token  = state.balance.token
   const Tokendb = state.balance.tokendb
-  const tn = state.swap[Field]
+  let tn ;
+  if(action=='swap'||action==''){
+    tn = state.swap[Field]
+  }else {
+    tn = state.addliquidity[Field]
+  }
   if(tn.type=='native'){
       return currency[tn.key as string];
     }else if(tn.type=='tokendb'){

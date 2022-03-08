@@ -14,7 +14,7 @@ import {
 import PopupSelecttoken from "./Popup";
 import { data } from "jquery";
 import { selectSwap } from "../features/swap/reducer";
-import { useDerivedSwapInfo, useGraph, useRouterpartPrice, useRouterState, useSwapActionHandlers, useSwapState, useTokenActive } from "./hook";
+import { useDerivedSwapInfo, useGraph, useRouterpartPrice, useRouterState, useSwapActionHandlers, useSwapState, useTokenActive } from "../hook/swap";
 import { useMatch } from "react-router";
 
 export default function Swap() {
@@ -29,7 +29,7 @@ export default function Swap() {
   return (
     <Container className="col-lg-4 ">
       {onCurrencySelect ? (
-        <PopupSelecttoken setonCurrencySelect={setonCurrencySelect} Field={onCurrencySelect==1?Field.INPUT:Field.OUTPUT}/>
+        <PopupSelecttoken setonCurrencySelect={setonCurrencySelect} Field={onCurrencySelect==1?Field.INPUT:Field.OUTPUT} action='swap'/>
       ) : (
         ""
       )}
@@ -96,12 +96,10 @@ function TokenInput({Field,setpopup,setpercent}:{Field:Field,setpopup:any,setper
   const token = useTokenActive(Field)
   const { onUserInput }= useSwapActionHandlers()
   const {typedValue,independentField} = useSwapState()
-    const {router:{amount,quote},status}= useRouterState()
-    
+  const {router:{amount,quote},status}= useRouterState()
   return (  
     <WrapTokenInput className={independentField!==Field?status:''}>
       <TokenToggl  onClick={()=>{setpopup(Field=='INPUT'?1:2)}}>
-       
         <Wrapimg>
           <img src={token.logoURI} />
         </Wrapimg>
@@ -248,8 +246,8 @@ animation: spin 2s linear infinite;
   100% { transform: rotate(360deg); }
 }
 
-`
-const Wrapimg = styled.div`
+` 
+export const Wrapimg = styled.div`
   & img {
     min-width: 24px;
   }
@@ -309,7 +307,7 @@ const Btnpercent = styled.button`
   }
 `;
 
-const InputAmount = styled.input`
+export const InputAmount = styled.input`
   overflow: visible;
   margin: 0;
   font-family: inherit;
@@ -326,19 +324,18 @@ const InputAmount = styled.input`
   outline: none;
   color: var(--color-tx2);
 `;
-const WrapInput = styled.div`
+export const WrapInput = styled.div`
   align-items: center; justify-content: end;
   width: 100%;
   position: relative;
   display: flex;
 `;
-const TokenToggl = styled.button`
+export const TokenToggl = styled.button`
 box-shadow: 0 0 9px 1px rgb(156 156 156 / 23%);
 background-color: #F0F3FF; 
 border-radius: 10px;
   color: var(--color-tx2);
   border: 0;
-  width: 110px;
   margin-right: 20px;
   cursor: pointer;
   display: grid;
