@@ -10,7 +10,8 @@ import styled from 'styled-components';
 import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
 import Notification from './Notification';
 import Swap from './Swap';
-import Liquidiy, { AddLiquidity, ImportLiquidity, RemoveLiquidity } from './Liquidity'
+import ImportLiquidity from './ImportLiquidity'
+import Liquidiy, { AddLiquidity, RemoveLiquidity } from './Liquidity'
 function App() {
     const dispatch = useAppDispatch();
     const loadWalletHook = useloadWallet(dispatch)
