@@ -8,7 +8,7 @@ module.exports = {
       // ./public directory is being served
       host: 'localhost',
       port: 3000,
-      proxy: 'http://mhgwalllet.local/app/view/swap'
+      proxy: 'http://localhost:80/app/view/swap'
     })
   ],
   mode: "development",

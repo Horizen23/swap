@@ -8,7 +8,7 @@ import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
 export default function Liquidity() {
   return (
     <Container >
-      <TitleText>Liquidity Pool</TitleText>
+      <TitleText>Liquidity Pool sadsa</TitleText>
       <Row>
           <p>Your  liquidity </p>
           <BtbAddLiquidity>
@@ -235,7 +235,7 @@ export const Row = styled.div`
   font-weight: 700;
   font-size: 12.5px;
   line-height: 32px;
-  margin-bottom:20px;
+  margin-bottom:65px;
   & p{
     margin: 0;
     font-size: 15px;
