@@ -19,6 +19,8 @@ pids
 lib-cov
 dist
 # Coverage directory used by tools like istanbul
+
+# Coverage directory used by tools like istanbul
 coverage
 *.lcov
 
