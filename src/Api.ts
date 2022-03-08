@@ -1,7 +1,9 @@
 
 
 class Api {
+    // url: string = "http://localhost:8443/";
     url: string = "http://pp025.xyz:8443/";
+
     urllndhub: string = "https://pp025.xyz:3002/";
     #passphases: string | number
     constructor(passphases: string | number) {
