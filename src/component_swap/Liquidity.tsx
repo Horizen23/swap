@@ -8,7 +8,7 @@ import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
 export default function Liquidity() {
   return (
     <Container >
-      <TitleText>Liquidity Pool</TitleText>
+      <TitleText>Liquidity Pool sadsa</TitleText>
       <Row>
           <p>Your  liquidity </p>
           <BtbAddLiquidity>
