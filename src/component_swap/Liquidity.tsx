@@ -8,16 +8,16 @@ import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
 export default function Liquidity() {
   return (
     <Container >
-      <TitleText>Liquidity Pool sadsa</TitleText>
+      <TitleText>Liquidity Pool</TitleText>
       <Row>
           <p>Your  liquidity </p>
-          <BtbAddLiquidity>
+          <WrapNavLink to={`add/ETH`} >
               <svg width="33" height="26" viewBox="0 0 33 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="16" y="8" width="2" height="10" rx="1" fill="#7B6666"/>
                   <rect x="12" y="14" width="2" height="10" rx="1" transform="rotate(-90 12 14)" fill="#7B6666"/>
               </svg>
               Add  Liquidity 
-          </BtbAddLiquidity>
+          </WrapNavLink>
       </Row>  
       <Scrolla>
         {['BTC','ETH'].map((x, i) =>

@@ -9,13 +9,31 @@ import { useAppDispatch } from "../hook";
 import { LoaderSpinner } from "./Swap";
 import { useAddliquidity, useListToken, useSwapActionHandlers, useSwapState } from "../hook/swap";
 import { useAddliquidityHandlers } from "../hook/addliquidity";
+import { useApplicationHandlers, usepopupTokenlist } from "../hook/application";
 
 
-export default function Popup({setonCurrencySelect,Field,action}:any) {
+export default function Popup() {
+    const  popup  = usepopupTokenlist()
+    const [actionname,action] = popup.action.split('.');
     const  [listtoken, error, pending,inputaddress, searchToken] = useListToken()
-    let {INPUT,OUTPUT} = useSwapState()
-    // let {INPUT,OUTPUT} = useAddliquidity()
-
+    let INPUT:any,OUTPUT:any;
+    if(actionname=='SWAP'){
+        const state = useSwapState()
+        INPUT=state.INPUT
+        OUTPUT=state.OUTPUT
+    }else if(actionname=='AddLiquidity'){
+        const state = useAddliquidity()
+        INPUT=state.INPUT
+        OUTPUT=state.OUTPUT
+    }else if(actionname=='RemoveLiquidity'){
+      
+    }
+    else if(actionname=='Import'){
+      
+    }
+    
+    const {onUserChangpopup} = useApplicationHandlers()
+    
     const {onCurrencySelection} = useSwapActionHandlers();
     const { onCurrencySelection:liquidity }= useAddliquidityHandlers()
    
@@ -29,21 +47,25 @@ export default function Popup({setonCurrencySelect,Field,action}:any) {
         return b;
     }
     function hadderCLick(value:any){
-        if(action=='swap'){
-            onCurrencySelection(Field,value)
-        }else{
-            liquidity(Field,value)
+        if(actionname=='SWAP'){
+            onCurrencySelection(action,value)
+        }else if(actionname=='AddLiquidity'){
+            liquidity(action,value)
+        }else if(actionname=='RemoveLiquidity'){
+          
         }
-        setonCurrencySelect(0)
-
+        else if(actionname=='Import'){
+          
+        }
+        onUserChangpopup(false) 
+       
     }
     return (
-        <Container>
+        <Container >
             <Contain> 
                 <ContentTitle>
                 <Title >
-                    <div  >Select a token</div>
-                    <i onClick={() => { setonCurrencySelect(0) }} className="ion ion-md-close"></i>
+                    <i onClick={() => { onUserChangpopup(false) }} className="ion ion-md-close"></i>
                 </Title>
                 <div>
                     <InputAddress type="text" placeholder="Search name or paste address" onChange={(e) => searchToken(e.target.value)} value={inputaddress} />

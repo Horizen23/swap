@@ -9,17 +9,15 @@ import { TokenToggl, Wrapimg,WrapInput,InputAmount } from './Swap';
 import PopupSelecttoken from "./Popup";
 import { Field } from '../features/swap/reducer';
 import { useAddliquidity, useAddliquidityHandlers, useTokenActive } from '../hook/addliquidity';
+import { useApplicationHandlers } from '../hook/application';
+import { activePoppup } from '../features/page/pageSlice';
 
 export default  function AddLiquidity() {
   const [onCurrencySelect, setonCurrencySelect] = useState<1 | 2 | 0>(0);
   const stateAddliquidity = useAddliquidity();
+
   return (
     <div className="row justify-content-md-center mt-4">
-       {onCurrencySelect ? (
-        <PopupSelecttoken setonCurrencySelect={setonCurrencySelect} Field={onCurrencySelect==1?'INPUT':'OUTPUT'} action='addliquidity'/>
-      ) : (
-        ""
-      )}
     <Container >
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
@@ -28,22 +26,24 @@ export default  function AddLiquidity() {
           </WrapNavLink>
           <TitleText>Add Liquidity</TitleText>
       </Row>  
-      <InputToken setpopup={setonCurrencySelect} Field={Field.INPUT} />
-      <InputToken setpopup={setonCurrencySelect} Field={Field.OUTPUT}/>
+      <InputToken Field={Field.INPUT} />
+      <InputToken Field={Field.OUTPUT}/>
           {JSON.stringify(stateAddliquidity)}
     </Container>
     </div>
   );
 }
 
-function InputToken({Field,setpopup}:any){
+function InputToken({Field}:{Field:Field}){
   const token = useTokenActive(Field)
   const {typedValue,independentField} = useAddliquidity()
   const { onUserInput }= useAddliquidityHandlers()
   let quote =1;
+  const {onUserChangpopup} = useApplicationHandlers()
+  
   return (  
   <WrapTokenInput>
-     <TokenToggl  onClick={()=>{setpopup(Field=='INPUT'?1:2)}}>
+     <TokenToggl  onClick={()=>{onUserChangpopup(true,activePoppup.AddLiquidity[Field])}}>
         <Wrapimg>
           <img src={token.logoURI} />
         </Wrapimg>

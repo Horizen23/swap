@@ -16,25 +16,21 @@ import { data } from "jquery";
 import { selectSwap } from "../features/swap/reducer";
 import { useDerivedSwapInfo, useGraph, useRouterpartPrice, useRouterState, useSwapActionHandlers, useSwapState, useTokenActive } from "../hook/swap";
 import { useMatch } from "react-router";
+import { useApplicationHandlers } from "../hook/application";
+import { activePoppup } from "../features/page/pageSlice";
 
 export default function Swap() {
   const [percent, setpercent] = useState(0);
   const {onSwitchTokens,onCurrencySelection,onUserInputpercent,onUserSwap,onAppove} = useSwapActionHandlers()  
   const TokenINPUT = useTokenActive(Field.INPUT)
   const TokenOUTPUT = useTokenActive(Field.OUTPUT)
-
+ 
   const {ButtonSwap,router,onUserRoutingAPITrade} = useDerivedSwapInfo()
  
-  const [onCurrencySelect, setonCurrencySelect] = useState<1 | 2 | 0>(0);
   return (
     <Container className="col-lg-4 ">
-      {onCurrencySelect ? (
-        <PopupSelecttoken setonCurrencySelect={setonCurrencySelect} Field={onCurrencySelect==1?Field.INPUT:Field.OUTPUT} action='swap'/>
-      ) : (
-        ""
-      )}
       <span className="text_head">Swap Token test</span>
-      <TokenInput Field={Field.INPUT}  setpopup={setonCurrencySelect} setpercent={setpercent}/>
+      <TokenInput Field={Field.INPUT}  setpercent={setpercent}/>
         <Balance>Balance:  {(Math.pow(10, -TokenINPUT.decimals) * (TokenINPUT.balance as number)).toFixed(4) }</Balance>
       <WrapBtnpercent>
         <div className="buttons flex">
@@ -45,7 +41,7 @@ export default function Swap() {
         </div>
       </WrapBtnpercent>
      <SvgLogo onClick={onSwitchTokens}/>
-      <TokenInput Field={Field.OUTPUT} setpopup={setonCurrencySelect} setpercent={setpercent}/>
+      <TokenInput Field={Field.OUTPUT} setpercent={setpercent}/>
       <Balance>Balance:  {(Math.pow(10, -TokenOUTPUT.decimals) * (TokenOUTPUT.balance as number)).toFixed(4) }</Balance>
 
       <SwapDetail/>
@@ -92,14 +88,16 @@ function BtnPercent({percent:percentSTR,onUserInputpercent}: {percent: number,on
   );
 }
 
-function TokenInput({Field,setpopup,setpercent}:{Field:Field,setpopup:any,setpercent:any}) {
+function TokenInput({Field,setpercent}:{Field:Field,setpercent:any}) {
   const token = useTokenActive(Field)
   const { onUserInput }= useSwapActionHandlers()
   const {typedValue,independentField} = useSwapState()
   const {router:{amount,quote},status}= useRouterState()
+  const {onUserChangpopup} = useApplicationHandlers()
+
   return (  
     <WrapTokenInput className={independentField!==Field?status:''}>
-      <TokenToggl  onClick={()=>{setpopup(Field=='INPUT'?1:2)}}>
+      <TokenToggl  onClick={()=>{onUserChangpopup(true,activePoppup.SWAP[Field])}}>
         <Wrapimg>
           <img src={token.logoURI} />
         </Wrapimg>
