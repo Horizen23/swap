@@ -17,7 +17,7 @@ export default  function ImportLiquidity() {
           </WrapNavLink>
           <TitleText>Import  Pool</TitleText>
       </Row>  
-      <Select name="USDT" image="/app/assets/img/icon/19.png"/>
+      <Select name="ETH" image="/app/assets/img/icon/1.png"/>
             <svg  style={{ "margin":"20 auto" }}  width="33" height="26" viewBox="0 0 33 26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="16" y="8" width="2" height="10" rx="1" fill="#7B6666"/>
             <rect x="12" y="14" width="2" height="10" rx="1" transform="rotate(-90 12 14)" fill="#7B6666"/>
@@ -29,7 +29,7 @@ export default  function ImportLiquidity() {
                 <p>9.999</p>
             </div>
             <div>
-                <p>USDT/BTC:</p>
+                <p>ETH/BTC:</p>
                 <p>100.000000%</p>
             </div>
             <div>
@@ -37,7 +37,7 @@ export default  function ImportLiquidity() {
                 <p>99.9999</p>
             </div>
             <div>
-                <p>USDT :</p>
+                <p>ETH :</p>
                 <p>0.999999</p>
             </div>
             
