@@ -17,21 +17,48 @@ export default  function RemoveLiquidity() {
           </WrapNavLink>
           <TitleText>Remove Liquidity</TitleText>
       </Row>  
+      <Range>
+      <Text>
+        <div>
+        Remove Amount
+        </div>
+        <h1 style={{ margin:'5px','left':2 ,color:'#000000' }}>0%</h1>
+      </Text>
+     
+
+      <div>     
+  <Inputrange type="range" min="0" max="100"/>
+      </div>
+      <Percent>
+      <Btnrange>25%</Btnrange>
+      <Btnrange>50%</Btnrange>
+      <Btnrange>75%</Btnrange>
+      <Btnrange>Max</Btnrange>
+      </Percent>
+      </Range>
+      <svg style={{ "margin":"20 auto" }} width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10.9393 22.0607C11.5251 22.6464 12.4749 22.6464 13.0607 22.0607L22.6066 12.5147C23.1924 11.9289 23.1924 10.9792 22.6066 10.3934C22.0208 9.80761 21.0711 9.80761 20.4853 10.3934L12 18.8787L3.51472 10.3934C2.92893 9.80761 1.97918 9.80761 1.3934 10.3934C0.807612 10.9792 0.807612 11.9289 1.3934 12.5147L10.9393 22.0607ZM10.5 0L10.5 21H13.5L13.5 0L10.5 0Z" fill="#646775"/>
+</svg>
+      <Price>
+      <Dprice>
+      <div>
+      <p>-</p>
+      <p>ETH</p>
+      </div>
+      <div>
+      <p>-</p>
+      <p>BTC</p>
+      </div>
+      <p style={{ margin:'5px','left':2 ,color:'#000000' }}>Receive BTC</p>
+      </Dprice>
+      </Price>
     </Container>
     </div>
   );
 }
-
-const Position = styled.div`
-width: 100%;
-left: 233px;
-top: 440px;
-background: #F0F3FF;
-padding: 18px;
-border: 1px solid #516AE4;
+const Dprice = styled.div`
 box-sizing: border-box;
 border-radius: 16px;
-margin: 21px 1px;
 & div {
   display:flex;
   justify-content: space-between;
@@ -41,76 +68,63 @@ margin: 21px 1px;
 }
 `
 
-const Selecttoken = styled.div`
+const Percent = styled.div`
+display: flex;
+justify-content: space-around;
+margin: 20px;
+`
+
+const Inputrange = styled.input`
+  width: 100%;
+`
+const Btnrange = styled.button`
+background-color: #DFE1F0;
+border: none;
+color: black;
+padding: 10px 20px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+margin: 4px 2px;
+cursor: pointer;
+border-radius: 16px;
+`
+
+const Text = styled.div`
+color: #6E6060;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding: 6px;
+` 
+
+
+
+const Range = styled.div`
 user-select: none;
   background: rgba(223, 213, 213, 0.19);
   border-radius: 31px;
-  cursor: pointer;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   left: 0px;
   top: 0px;
   width: 100%;
-  height: 76px;
-  display: flex;
-  justify-content: space-between;
+  height: 240px;
   margin-bottom:10px;
   padding: 4px 20px;
-  & div{
-    align-items: center;
-  }
+  
 `
-const Nametoken = styled.div`
-display: flex;
-& .imageInfo{
-    width: 61px;
-    height: 30px;
-    position: relative;
-} img{
-  position: absolute;
-  width: 30px;
-}
-& img:first-child{
-  z-index: 2;
-}
-& img:last-child{
-  left: 20px;
-}
-& div:last-child{
-  color: #6E6060;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-  margin-left: 14px;
-}
+const Price = styled.div`
+user-select: none;
+  background: rgba(223, 213, 213, 0.19);
+  border-radius: 31px;
+  align-items: center;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 107px;
+  margin-bottom:10px;
+  padding: 4px 20px;
+  
 `
-const ManageTogle = styled.div`
-display: flex;
-font-size: 15px;
-font-weight: bold;
-line-height: -12px;
-color: #516AE4;
-& svg.active{
-  animation: 0.5s ManageTogle-awrow-active 0s forwards;
-}
-svg{
-  animation: 0.5s ManageTogle-awrow-noactive 0s forwards;
-}
 
-@keyframes ManageTogle-awrow-noactive {
-  from {
-    transform: rotateX(180deg);
-  }
-  to {
-    transform: rotateX(0deg);
-  }
-}
-@keyframes ManageTogle-awrow-active {
-  to {
-    transform: rotateX(180deg);
-  }
-}
-`

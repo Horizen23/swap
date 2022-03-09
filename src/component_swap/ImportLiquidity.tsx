@@ -21,12 +21,12 @@ export default  function ImportLiquidity() {
           </WrapNavLink>
           <TitleText>Import  Pool</TitleText>
       </Row>  
-      <Select name="ETH" image="/app/assets/img/icon/1.png" Field={Field.INPUT}/>
+      <SelectT name="ETH" image="/app/assets/img/icon/1.png" Field={Field.INPUT}/>
             <svg  style={{ "margin":"20 auto" }}  width="33" height="26" viewBox="0 0 33 26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="16" y="8" width="2" height="10" rx="1" fill="#7B6666"/>
             <rect x="12" y="14" width="2" height="10" rx="1" transform="rotate(-90 12 14)" fill="#7B6666"/>
             </svg>
-          <Select name="BTC" image="/app/assets/img/icon/18.png" Field={Field.OUTPUT}/>
+          <SelectT name="BTC" image="/app/assets/img/icon/18.png" Field={Field.OUTPUT}/>
           {/* Select a token */}
     <Position >
     <p>Your position</p>
@@ -54,7 +54,7 @@ export default  function ImportLiquidity() {
   );
 }
 
-function Select({name,image}:any){
+function SelectT({name,image}:any){
   return (<Selecttoken>
     <Nametoken>
     <div className="imageInfo">
