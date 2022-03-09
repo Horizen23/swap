@@ -4,7 +4,7 @@ import { Provider, useSelector } from "react-redux";
 import * as ReactDOM from "react-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
+import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-dom";
 import { TokenToggl, Wrapimg,WrapInput,InputAmount } from './Swap';
 import PopupSelecttoken from "./Popup";
 import { Field } from '../features/swap/reducer';
@@ -14,16 +14,27 @@ import { activePoppup } from '../features/page/pageSlice';
 import { useParams } from 'react-router';
 import { getselectInfo, useAllTokens } from '../hook/token';
 
-export default  memo(()=>{
+export default  memo(function AddLiquidity(){
   const [onCurrencySelect, setonCurrencySelect] = useState<1 | 2 | 0>(0);
-  // const stateAddliquidity = useAddliquidity();
+  const stateAddliquidity = useAddliquidity();
   const { currencykeyA,currencykeyB } = useParams();
-  console.log(getselectInfo(currencykeyA!))
+  const {onCurrencySelection} = useAddliquidityHandlers()
+  const history = useNavigate();
+  useEffect(()=>{
+    onCurrencySelection(Field.INPUT,getselectInfo(currencykeyA!) )
+    onCurrencySelection(Field.OUTPUT,getselectInfo(currencykeyB!))
+  },[])
+  useEffect(()=>{
+    if(stateAddliquidity.OUTPUT.key&&stateAddliquidity.INPUT.key){
+      // console.log(`/app/view/liquidity/add/${stateAddliquidity.INPUT.key}/${stateAddliquidity.OUTPUT.key}`)
+      history(`/app/view/liquidity/add/${stateAddliquidity.INPUT.key}/${stateAddliquidity.OUTPUT.key}`, { replace: true })
+    }
+  },[stateAddliquidity.OUTPUT.key,stateAddliquidity.INPUT.key])
+  // history(`/app/view/liquidity/add/0x30a13C9941e9E6316C6494A47dcC528BAbbc5773/ETH`, { replace: true })
 
   return (
     <div className="row justify-content-md-center mt-4">
     <Container >
-      {JSON.stringify({currencykeyA,currencykeyB})}
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -31,9 +42,8 @@ export default  memo(()=>{
           </WrapNavLink>
           <TitleText>Add Liquidity</TitleText>
       </Row>  
-      {/* <InputToken  Field={Field.INPUT} />
-      <InputToken  Field={Field.OUTPUT}/> */}
-          {/* {JSON.stringify(stateAddliquidity)} */}
+       <InputToken  Field={Field.INPUT} />
+      <InputToken  Field={Field.OUTPUT}/> 
     </Container>
     </div>
   );

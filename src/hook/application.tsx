@@ -27,7 +27,6 @@ export function useApplicationHandlers():{
     const dispatch = useAppDispatch()
 
     const onUserChangpopup =  useCallback((isopen,action='')=>{
-        console.log(isopen)
         dispatch(activeTokenlist({
             action:action,
             status:isopen

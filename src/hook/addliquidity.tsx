@@ -49,18 +49,27 @@ export function useAddliquidityHandlers(): {
     const dispatch = useAppDispatch()
     const onCurrencySelection = useCallback(
         (field: Field, currency: any) => {
-          dispatch(
+          if(!currency.key){
+            dispatch(
+                select({
+                field,
+                token:{
+                    type:currency.type,
+                    key :(currency.type=='native'?currency.symbol:currency.address)
+                },
+              })
+            )
+          }else{
+            dispatch(
               select({
               field,
-              token:{
-                  type:currency.type,
-                  key :(currency.type=='native'?currency.symbol:currency.address)
-              },
+              token:currency,
             })
           )
+          }
         },
         [dispatch]
-      )
+    )
     const onUserInput = useCallback(
         (field: Field, typedValue: string) => {
           dispatch(addpercent( {percent:null} ))

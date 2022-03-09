@@ -20,9 +20,13 @@ export function useAllTokens():ListToken{
   })
 }
 
-export function getselectInfo(key:string):TToken{
-  return useAppSelector((state:RootState) => {
+export function getselectInfo(key:string):any{
+    const state = store.getState()
     const ob:ListToken ={...state.balance.tokendb,...state.balance.token,...state.balance.currency} as ListToken;
-    return  ob[key]
-  })
+    if(!ob[key])return false;
+    if(ob[key].type=='native'){
+      return {type:ob[key].type,symbol:ob[key].symbol,address:''}
+    }else{
+      return {type:ob[key].type,symbol:ob[key].symbol,address:ob[key].address}
+    }
 }
