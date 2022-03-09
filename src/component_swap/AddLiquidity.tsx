@@ -26,8 +26,8 @@ export default  function AddLiquidity() {
           </WrapNavLink>
           <TitleText>Add Liquidity</TitleText>
       </Row>  
-      <InputToken Field={Field.INPUT} />
-      <InputToken Field={Field.OUTPUT}/>
+      <InputToken  Field={Field.INPUT} />
+      <InputToken  Field={Field.OUTPUT}/>
           {JSON.stringify(stateAddliquidity)}
     </Container>
     </div>
@@ -43,7 +43,7 @@ function InputToken({Field}:{Field:Field}){
   
   return (  
   <WrapTokenInput>
-     <TokenToggl  onClick={()=>{onUserChangpopup(true,activePoppup.AddLiquidity[Field])}}>
+     <TokenToggl  onClick={()=>{onUserChangpopup(true,activePoppup.AddLiquidity[Field as Field])}}>
         <Wrapimg>
           <img src={token.logoURI} />
         </Wrapimg>
