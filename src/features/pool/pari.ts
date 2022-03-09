@@ -4,111 +4,93 @@ import { createAction, createAsyncThunk, createReducer } from '@reduxjs/toolkit'
 import { gettoken, useTokenActive } from '../../hook/swap';
 var MaxUint256 = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
-export const RoutingAPITrade = createAsyncThunk(
-  'router/RoutingAPITrade',
-  async (userData, { rejectWithValue }) => {
+
+export const Getpair = createAsyncThunk(
+  'Pari/getpair',
+  async (generatedPairs:any, { rejectWithValue }) => {
     try {
-        const response:Routerstate['router'] = await MHGWallet.api.BalanceAll()
-      return response;
+      const addressPair = generatedPairs.map((v:any)=>v.address);
+      const data = await  MHGWallet.api.getpair(addressPair);
+        let obj:any = {}
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                obj[key] = {...generatedPairs.find(({address}:any)=> address===key),...data[key]}
+            }
+        }
+      return obj;
     } catch (err:any) {
       return rejectWithValue(err.responseJSON)
     }
   }
 );
 
-export const Erc20Approve = createAsyncThunk(
-  'router/Erc20Approve',
-  async (data, { rejectWithValue }) => {
-    const address = store.getState().router.router.routers[0]
-    try {
-      const response:string = (await  MHGWallet.api.erc20approve(address)).approve
-      return {
-        amount:response
-      };
-    } catch (err:any) {
-      return rejectWithValue(err.responseJSON)
+interface IPari {
+      address: string,
+     decimals: string|number,
+     symbol: string,
+     name: string,
+     totalSupply: string,
+     balanceOf: string,
+     Reserves: {
+        reserve0: string,
+        reserve1: string,
+        blockTimestampLast: string|number,
     }
-  }
-);
-
-
-type StatusRouter = 'loading'|'failed'|'active'|'idle'
-export interface Routerstate {
-    readonly status:StatusRouter;
-    readonly router:{
-      amount:string;
-      quote:string;
-      routers:string[];
-      allowance:string;
-      part:string[];
-    };
-    readonly status_appover:StatusRouter;
-    readonly message:string;
+     token0:TToken
+     token1:TToken
+     getKey:()=>any[]
+  // members of your "class" go here
 }
-const initialState: Routerstate = {
+
+type StatusPari = 'loading'|'failed'|'active'|'idle'
+export interface Paristate {
+    readonly status:StatusPari;
+    readonly list:pair|{};
+}
+const initialState: Paristate = {
     status:'idle',
-    router:{
-      amount:'',
-      quote:'',
-      routers:[],
-      allowance:'',
-      part:[],
-    },
-    status_appover:'idle',
-    message:''
-
+    list:{},
 }
 
-export const Routingloading = createAction('router/loading');
-export default createReducer<Routerstate>(initialState, (builder) =>
-    builder
-    .addCase(Routingloading,( state:any, action)=>{
-        return {
-            ...state,
-            message:'',
-            status:'loading',
-        }
-    })
-    .addCase(RoutingAPITrade.pending,( state:any, action)=>{
-       return {
-            ...state,
-            message:'',
-            status:'loading',
-       }
-    })
-    .addCase(RoutingAPITrade.fulfilled,( state:any, {payload:router})=>{
-        return {
-            router,
-            message:'',
-            status:'active',
-            status_appover:'idle',
-            
-        }
-     })  
-     .addCase(RoutingAPITrade.rejected,( state:any, {payload}:any)=>{
-          state.router={
-            amount:'',
-            quote:'',
-            routers:[],
-            allowance:'',
-            part:[],
-          };
-          state.status='failed'
-          if(payload&&payload.message){
-            state.message=payload.message
-          }
-
-   })
-
-
-  .addCase(Erc20Approve.pending,( state:any, action)=>{
-    state.status_appover = 'loading'
+export default createReducer<Paristate>(initialState, (builder) =>
+  builder
+  .addCase(Getpair.pending,( state:any)=>{
+    state.status = 'loading'
   })
-  .addCase(Erc20Approve.fulfilled,( state:any, {payload:amount})=>{
-    state.status_appover = 'active'
-    state.router.allowance = amount
+  .addCase(Getpair.fulfilled,( state:any, {payload}:any)=>{
+    state.status = 'active'
+  
+
+    
+    // just use it as usual
+    // console.log('payload',new NewPair(payload['0x0EF4917F93fb1016407569AD72833232F1CFA806']))
+    state.list = {...state.list,...payload}
   })  
-  .addCase(Erc20Approve.rejected,( state:any, {payload}:any)=>{
-    state.status_appover = 'failed'
+  .addCase(Getpair.rejected,( state:any)=>{
+    state.status = 'failed'
   })
+
 )
+
+export const WrapStatePair = function(this:IPari,pair: any) {
+  this.Reserves = pair.Reserves
+  this.address = pair.address
+  this.balanceOf = pair.balanceOf
+  this.decimals = pair.decimals
+  this.name = pair.name
+  this.symbol = pair.symbol
+  this.token0 = pair.token0
+  this.token1 = pair.token1
+  this.getKey = ():any[] =>{
+    return [(this.token0.type =='native')?this.token0.symbol:this.token0.address,(this.token1.type =='native')?this.token1.symbol:this.token1.address]
+  }
+  
+} as any as { new (txt: any): IPari }
+
+
+
+// function Pizza(this: any, ) {
+
+// Pizza.prototype.addTopping = function addTopping(topping: string) {
+//   this.toppings.push(topping);
+// };

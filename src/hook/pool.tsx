@@ -16,6 +16,7 @@ import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
 import { useAllTokens } from "./token";
 import { keccak256, solidityKeccak256, solidityPack } from "ethers/lib/utils";
+import { Getpair } from "../features/pool/pari";
 
 const BASES_TO_TRACK_LIQUIDITY:string[] = [
     'ETH'
@@ -23,6 +24,7 @@ const BASES_TO_TRACK_LIQUIDITY:string[] = [
 
 export function useTrackedTokenPairs(): any {
     const tokens = useAllTokens()
+    const dispatch = useAppDispatch()
     const generatedPairs = useMemo(
     () => Object.keys(tokens).flatMap((tokenKey) => {
         return  ([...BASES_TO_TRACK_LIQUIDITY] ?? [])
@@ -43,10 +45,15 @@ export function useTrackedTokenPairs(): any {
         })
         .filter((p): p is any => p !== null)
     }),[tokens])
-    console.log(generatedPairs)
+    useEffect(()=>{
+        dispatch(Getpair(generatedPairs))
+    },[])
 }
 
-  
+export function usepari():RootState['pari']  {
+    return useAppSelector((state:RootState) => state.pari)
+}
+
 function computePairAddress(tokenA:any,tokenB:any) {
     var factoryAddress = '0x9cb01917bE987d1DC3d0c70E2AFecC1B4648A268';
     var INIT_CODE_HASH = '0x7e49d5a452686e20f3694c8b7da9ce371fddadafe40ae661631501370842bf9b';
@@ -73,4 +80,4 @@ function computePairAddress(tokenA:any,tokenB:any) {
         token1,
         address
     }
-  };
+};

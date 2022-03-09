@@ -4,10 +4,13 @@ import * as ReactDOM from "react-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
-import { useTrackedTokenPairs } from "../hook/pool";
+import { usepari, useTrackedTokenPairs } from "../hook/pool";
+import { LoaderSpinner } from "./Swap";
+import { WrapStatePair } from "../features/pool/pari";
 
 export default function Liquidity() {
   useTrackedTokenPairs()
+  const pair = usepari()
   return (
     <Container >
       <TitleText>Liquidity Pool</TitleText>
@@ -22,9 +25,9 @@ export default function Liquidity() {
           </WrapNavLink>
       </Row>  
       <Scrolla>
-        {['BTC','ETH'].map((x, i) =>
-          <ListPair name={x} key={i}/>
-        )}
+        {pair.status=='active'?Object.entries(pair.list).map(([key, value]:any) =>
+          <ListPair key={key} pair={{key,value}}/>
+        ):<LoaderSpinner style={{'margin':'0 auto'}} />}
       </Scrolla>
       <WrapNavLink className={BtbAddLiquidity} to='import' >Import Pool</WrapNavLink>
       
@@ -41,20 +44,19 @@ const Scrolla =styled.div`
 `
 
 
-
-function ListPair({name}:any){
+function ListPair({pair:{key,value}}:any){
     const [isActiveManage,setisActiveManage] = useState(false)
-    const address1 = '0x5CB1e2108366f5191650a580e6245DC52a0481e7'
-    const address2 = 'ETH'
+    const pair = new WrapStatePair(value)
     
+    let percentpool = (value.balanceOf/value.totalSupply*100);
     return <div>
     <PairInfo onClick={()=>{{setisActiveManage(!isActiveManage)}}}>
       <Nameinfo>
         <div className="imageInfo">
-          <img src="/app/assets/img/icon/1.png" />
-          <img src="https://gemini.com/images/currencies/icons/default/1inch.svg" />
+          <img src={value.token0.logoURI} />
+          <img src={value.token1.logoURI} />
         </div>
-        <div> {name}/USDT </div>
+        <div> {value.token0.symbol}/{value.token1.symbol} </div>
       </Nameinfo>
         <ManageTogle >
             <div>Manage</div>
@@ -66,26 +68,26 @@ function ListPair({name}:any){
     </PairInfo>
     {isActiveManage&&<ManagePari >
             <div>
-                <p>Your total po tokens:</p>
-                <p>0.03</p>
+                <p>Your total pool tokens:</p>
+                <p>{value.balanceOf*1e-18}</p>
             </div>
             <div>
-                <p>Pooled  {name}:</p>
-                <p>0.03</p>
+                <p>Pooled  {value.token0.symbol}:</p>
+                <p>{(value.Reserves.reserve0/100*percentpool)*1e-18}</p>
             </div>
             <div>
-                <p>Pooled USDT:</p>
-                <p>0.03</p>
+                <p>Pooled {value.token1.symbol}:</p>
+                <p>{(value.Reserves.reserve1/100*percentpool)*1e-18}</p>
             </div>
             <div>
                 <p>Your pool share:</p>
-                <p>100.00 %</p>
+                <p>{percentpool.toFixed(2)} %</p>
             </div>
             <div>
-              <Btnaddandremove to={`add/${address1}/${address2}`}>
+              <Btnaddandremove to={`add/${pair.getKey()[0]}/${pair.getKey()[1]}`}>
                 Add
               </Btnaddandremove>
-              <Btnaddandremove to={`remove/${address1}/${address2}`}>
+              <Btnaddandremove to={`remove/${pair.getKey()[0]}/${pair.getKey()[1]}`}>
                 Remove
               </Btnaddandremove>
             </div>
@@ -223,7 +225,7 @@ export const Row = styled.div`
   font-weight: 700;
   font-size: 12.5px;
   line-height: 32px;
-  margin-bottom:65px;
+  margin-bottom:25px;
   & p{
     margin: 0;
     font-size: 15px;

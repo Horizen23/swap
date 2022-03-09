@@ -9,6 +9,8 @@ class Api {
     constructor(passphases: string | number) {
         this.#passphases = passphases
     }
+
+    
     async CreateWallet(type: argCreatewallet): Promise<{ address: string, mnemonic: string, network: string, privateKey: string }> {
         return new Promise((res, rej) => {
             let request: RequestApi;
@@ -218,6 +220,26 @@ class Api {
               
               window.$.ajax(settings).done(function (response: any) {
                 console.log(response)
+                res(response)
+            });
+
+        })
+    }
+    async getpair(data:any): Promise<any> {
+        return new Promise((res, rej) => { 
+        const { privateAddress } = this.#getseed('ETH') as Seed
+            var settings = {
+                "url": "http://localhost:8443/getpair",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                  "Content-Type": "application/json",
+                  "private-key": privateAddress,
+                },
+                "data": JSON.stringify(data),
+              };
+              
+              window.$.ajax(settings).done(function (response: any) {
                 res(response)
             });
 
