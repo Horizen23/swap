@@ -12,7 +12,9 @@ import Notification from './Notification';
 import Swap from './Swap';
 import ImportLiquidity from './ImportLiquidity'
 import AddLiquidity from './AddLiquidity'
-import Liquidiy, {  RemoveLiquidity } from './Liquidity'
+import RemoveLiquidity from './RemoveLiquidity'
+
+import Liquidiy from './Liquidity'
 import { usepopupTokenlist } from '../hook/application';
 function App() {
     const dispatch = useAppDispatch();
@@ -38,8 +40,8 @@ function App() {
                     <Route path="app/view/swap" element={<WrapSwap/>} />
                     <Route path="app/view/liquidity/">
                         <Route path="import" element={<ImportLiquidity/>} />
-                        <Route path="add/:address1/:address2" element={<AddLiquidity/>} />
-                        <Route path="add/:address1" element={<AddLiquidity/>} />
+                        <Route  path="add/:currencykeyA/:currencykeyB" element={<AddLiquidity/>} />
+                        <Route path="add/:currencykeyA" element={<AddLiquidity/>} />
 
                         <Route path="remove/:address1/:address2" element={<RemoveLiquidity/>} />
 
