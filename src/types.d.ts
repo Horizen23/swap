@@ -49,6 +49,7 @@ export declare global {
         logoURI?:string
         address:string|null
         interval?:any
+        WraptoToken?:string
         type:'native'|'token'
     }
     type typeAction = 'token'|'native'|'tokendb'

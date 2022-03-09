@@ -135,7 +135,8 @@ const initialState: Balance = {
       logoURI: '/app/assets/img/icon/1.png',
       address: null,
       type: 'native',
-      status: 'idle'
+      status: 'idle',
+      WraptoToken:"0xe8e0A5f41a4C873ed675B285aa8bc4814043aB05"
     }
   },
   token: {
