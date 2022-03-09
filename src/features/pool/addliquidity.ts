@@ -22,7 +22,7 @@ export interface addliquidityState {
 const initialState: addliquidityState = {
     typedValue:'',
     independentField:Field.INPUT,
-    INPUT: {type:'native',key:'ETH'},
+    INPUT: {type:null,key:''},
     OUTPUT: {type:null,key:''},
     recipient:null,
     percent:null,

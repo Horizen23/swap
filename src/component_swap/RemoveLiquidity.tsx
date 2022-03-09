@@ -27,7 +27,7 @@ export default  function RemoveLiquidity() {
      
 
       <div>     
-  <Inputrange type="range" min="0" max="100"/>
+      <Inputrange  type="range" aria-labelledby="input slider" step="1" min="0" max="100"  />
       </div>
       <Percent>
       <Btnrange>25%</Btnrange>
@@ -75,7 +75,31 @@ margin: 20px;
 `
 
 const Inputrange = styled.input`
+
   width: 100%;
+  &[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 600px;
+    height: 5px;
+    padding: 0;
+    border-radius: 20px;
+    outline: none;
+    cursor: pointer;
+    background-color: rgb(131 142 241);
+  }
+  
+  &[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -webkit-border-radius: 100px;
+    /*30x30px adjusted to be same as 28x28px on moz*/
+    height: 30px;
+    width: 30px;
+    border-radius: 100px;
+    background: rgb(45 80 226 / 80%);
+  }
 `
 const Btnrange = styled.button`
 background-color: #DFE1F0;

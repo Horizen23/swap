@@ -47,8 +47,7 @@ const Scrolla =styled.div`
 function ListPair({pair:{key,value}}:any){
     const [isActiveManage,setisActiveManage] = useState(false)
     const pair = new WrapStatePair(value)
-    
-    let percentpool = (value.balanceOf/value.totalSupply*100);
+    let percentpool = pair.getpercent();
     return <div>
     <PairInfo onClick={()=>{{setisActiveManage(!isActiveManage)}}}>
       <Nameinfo>
@@ -73,11 +72,11 @@ function ListPair({pair:{key,value}}:any){
             </div>
             <div>
                 <p>Pooled  {value.token0.symbol}:</p>
-                <p>{(value.Reserves.reserve0/100*percentpool)*1e-18}</p>
+                <p>{pair.balanceReservesA()*1e-18}</p>
             </div>
             <div>
                 <p>Pooled {value.token1.symbol}:</p>
-                <p>{(value.Reserves.reserve1/100*percentpool)*1e-18}</p>
+                <p>{pair.balanceReservesB()*1e-18}</p>
             </div>
             <div>
                 <p>Your pool share:</p>

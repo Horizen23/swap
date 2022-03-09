@@ -14,8 +14,15 @@ import { BigNumber as BN } from "ethers";
 import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
 
-export function useAllTokens():any{
+export function useAllTokens():ListToken{
   return useAppSelector((state:RootState) => {
-    return {...state.balance.tokendb,...state.balance.token,...state.balance.currency}
+    return {...state.balance.tokendb,...state.balance.token,...state.balance.currency} as ListToken
+  })
+}
+
+export function getselectInfo(key:string):TToken{
+  return useAppSelector((state:RootState) => {
+    const ob:ListToken ={...state.balance.tokendb,...state.balance.token,...state.balance.currency} as ListToken;
+    return  ob[key]
   })
 }

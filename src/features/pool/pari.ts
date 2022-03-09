@@ -39,6 +39,12 @@ interface IPari {
      token0:TToken
      token1:TToken
      getKey:()=>any[]
+     getpercent:()=>number;
+     balanceReservesA:()=>number;
+     balanceReservesB:()=>number;
+
+
+     
   // members of your "class" go here
 }
 
@@ -81,10 +87,20 @@ export const WrapStatePair = function(this:IPari,pair: any) {
   this.symbol = pair.symbol
   this.token0 = pair.token0
   this.token1 = pair.token1
+  this.totalSupply = pair.totalSupply
+
   this.getKey = ():any[] =>{
     return [(this.token0.type =='native')?this.token0.symbol:this.token0.address,(this.token1.type =='native')?this.token1.symbol:this.token1.address]
   }
-  
+  this.getpercent = () =>{
+    return (+this.balanceOf/+this.totalSupply)*100
+  }
+  this.balanceReservesA = () =>{
+    return +this.Reserves.reserve0/100*this.getpercent()
+  }
+  this.balanceReservesB = () =>{
+    return +this.Reserves.reserve1/100*this.getpercent()
+  }
 } as any as { new (txt: any): IPari }
 
 
