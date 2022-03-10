@@ -4,13 +4,13 @@ import * as ReactDOM from "react-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
-import { usepari, useTrackedTokenPairs } from "../hook/pool";
+import { usepair, useTrackedTokenPairs } from "../hook/pool";
 import { LoaderSpinner } from "./Swap";
-import { WrapStatePair } from "../features/pool/pari";
+import { WrapStatePair } from "../features/pool/pair";
 
 export default function Liquidity() {
   useTrackedTokenPairs()
-  const pair = usepari()
+  const pair = usepair()
   return (
     <Container >
       <TitleText>Liquidity Pool</TitleText>
@@ -167,7 +167,7 @@ svg{
   }
 }
 `
-const Nameinfo = styled.div`
+export const Nameinfo = styled.div`
 display: flex;
 & .imageInfo{
     width: 61px;

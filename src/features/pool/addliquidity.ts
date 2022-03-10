@@ -5,6 +5,17 @@ export enum Field {
     OUTPUT = 'OUTPUT',
   }
 
+export const GetpairSig = createAsyncThunk(
+  'addliquidity/getpair',
+  async (generatedPairs:any, { rejectWithValue }) => {
+    try {
+      const data = await  MHGWallet.api.getpair([generatedPairs.address]);
+      return {...generatedPairs,...data[generatedPairs.address]};
+    } catch (err:any) {
+      return rejectWithValue(err.responseJSON)
+    }
+  }
+);
 export type Tokenseslect = {
     type:'native'|'token'|'tokendb'|null,
     key:string|null
@@ -15,8 +26,10 @@ export interface addliquidityState {
   readonly [Field.INPUT]: Tokenseslect;
   readonly [Field.OUTPUT]: Tokenseslect;
   readonly recipient: string | null;
-  readonly percent: number | null;
-
+  readonly pair:{
+    status:'loading'|'active_new'|'active_add'|'failed'|'idle',
+    value:pair|{}
+  };
 }
 
 const initialState: addliquidityState = {
@@ -25,7 +38,10 @@ const initialState: addliquidityState = {
     INPUT: {type:null,key:''},
     OUTPUT: {type:null,key:''},
     recipient:null,
-    percent:null,
+    pair:{
+      status:'idle',
+      value:{}
+    }
 }
 
 
@@ -43,12 +59,10 @@ export default createReducer<addliquidityState>(initialState, (builder) =>
           independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
           [field]:  token ,
           [otherField]:state[field],
-          percent:null
         }
       } else {
         return {
           ...state,
-          percent:null,
           [field]: token ,
         }
       }
@@ -68,5 +82,17 @@ export default createReducer<addliquidityState>(initialState, (builder) =>
       })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
         state.recipient = recipient
+      })
+
+
+      .addCase(GetpairSig.pending,( state:any)=>{
+        state.pair.status = 'loading'
+      })
+      .addCase(GetpairSig.fulfilled,( state:any, {payload}:any)=>{
+        state.pair.status = 'active'
+        state.pair.value = payload
+      })  
+      .addCase(GetpairSig.rejected,( state:any)=>{
+        state.pair.status = 'failed'
       })
 )

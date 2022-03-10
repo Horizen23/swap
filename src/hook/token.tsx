@@ -30,3 +30,9 @@ export function getselectInfo(key:string):any{
       return {type:ob[key].type,symbol:ob[key].symbol,address:ob[key].address}
     }
 }
+export function gettokenBykey(key:string):TToken|false{
+  const state = store.getState()
+  const ob:ListToken ={...state.balance.tokendb,...state.balance.token,...state.balance.currency} as ListToken;
+  if(!ob[key])return false;
+  return ob[key];
+}

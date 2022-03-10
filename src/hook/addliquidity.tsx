@@ -2,7 +2,7 @@ import { isAddress } from "@ethersproject/address";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react"
 import { useSelector } from "react-redux";
 import { addtokendb, selectcurrency, selecttoken, selectTokendb, tokenbalanceAsync, useloadWallet } from "../features/balance/balanceSlice";
-import { select ,Field,Tokenseslect, typeInput, addpercent} from "../features/pool/addliquidity"
+import { select ,Field,Tokenseslect, typeInput, addpercent, GetpairSig} from "../features/pool/addliquidity"
 import { useAppDispatch, useAppSelector } from "."
 import { RootState, AppThunk, store } from '../store';
 import { parseUnits } from '@ethersproject/units'
@@ -13,6 +13,11 @@ import _ from "underscore";
 import { BigNumber as BN } from "ethers";
 import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
+import { useNavigate, useParams } from "react-router";
+import { getselectInfo, gettokenBykey } from "./token";
+import { computePairAddress, creatPaiaOffchain, usepair } from "./pool";
+import pair, { Getpair } from "../features/pool/pair";
+import { BtnError } from "./swap";
 
 export function useIsLogin(wallet:string): boolean {
   return useAppSelector((state:RootState) => !!state.balance.currency[wallet].address, _.isEqual)
@@ -83,3 +88,39 @@ export function useAddliquidityHandlers(): {
     }
   }
 
+export function useDerivedaddliquidity():any {
+  const dispatch = useAppDispatch()
+  const {pair,INPUT,OUTPUT} = useAddliquidity();
+  const { currencykeyA,currencykeyB } = useParams();
+  const {onCurrencySelection} = useAddliquidityHandlers()
+  const history = useNavigate();
+  const pairs =  usepair()
+  const tokenA = gettokenBykey(INPUT.key!)
+  const tokenB = gettokenBykey(OUTPUT.key!)
+  let ButtonAppove: ReactNode | undefined
+  useEffect(()=>{
+    onCurrencySelection(Field.INPUT,getselectInfo(currencykeyA!) )
+    onCurrencySelection(Field.OUTPUT,getselectInfo(currencykeyB!))
+  },[])
+  useEffect(()=>{
+    if(OUTPUT.key&&INPUT.key){
+      history(`/app/view/liquidity/add/${INPUT.key}/${OUTPUT.key}`, { replace: true })
+      if(tokenA&&tokenB){
+        const pr = creatPaiaOffchain(tokenA,tokenB)
+        // if(!pairs.list[pr.address] ){
+           dispatch(GetpairSig(pr))
+        // }else{
+          // pairs.list[pr.address]
+        // }
+      }
+  }
+  },[OUTPUT.key,INPUT.key])
+
+
+  if (true) {
+    ButtonAppove = ButtonAppove ?? <BtnError>Select a token</BtnError>
+  }
+// console.log(stateAddliquidity)
+return {pair,ButtonAppove,tokenA,tokenB}
+
+}
