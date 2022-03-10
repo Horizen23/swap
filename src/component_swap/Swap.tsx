@@ -18,17 +18,23 @@ import { useDerivedSwapInfo, useGraph, useRouterpartPrice, useRouterState, useSw
 import { useMatch } from "react-router";
 import { useApplicationHandlers } from "../hook/application";
 import { activePoppup } from "../features/page/pageSlice";
+import Popup from "./Popup";
 
 export default function Swap() {
   const [percent, setpercent] = useState(0);
   const {onSwitchTokens,onCurrencySelection,onUserInputpercent,onUserSwap,onAppove} = useSwapActionHandlers()  
   const TokenINPUT = useTokenActive(Field.INPUT)
   const TokenOUTPUT = useTokenActive(Field.OUTPUT)
- 
+  const swappp = useSwapState();
   const {ButtonSwap,router,onUserRoutingAPITrade} = useDerivedSwapInfo()
- 
   return (
     <Container className="col-lg-4 ">
+      <Popup  Active={{
+        INPUT:swappp.INPUT,
+        OUTPUT:swappp.OUTPUT,
+      }}hadderCLick={(field,token)=>{
+          onCurrencySelection(field,token)
+      }}/>
       <span className="text_head">Swap Token test</span>
       <TokenInput Field={Field.INPUT}  setpercent={setpercent}/>
         <Balance>Balance:  {(Math.pow(10, -TokenINPUT.decimals) * (TokenINPUT.balance as number)).toFixed(4) }</Balance>

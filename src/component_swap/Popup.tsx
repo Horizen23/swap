@@ -7,63 +7,59 @@ import { ButtonInport, LogoToken, Name, WrapToken } from "../component/PopupAddT
 import { isAddress } from "ethers/lib/utils";
 import { useAppDispatch } from "../hook";
 import { LoaderSpinner } from "./Swap";
-import { useAddliquidity, useListToken, useSwapActionHandlers, useSwapState } from "../hook/swap";
-import { useAddliquidityHandlers } from "../hook/addliquidity";
+import { useListToken, useSwapActionHandlers, useSwapState } from "../hook/swap";
 import { useApplicationHandlers, usepopupTokenlist } from "../hook/application";
+import { useParams } from "react-router";
+import { useBurnActionHandlers } from "../features/burn/hooks";
 
 
-export default function Popup() {
+export default function Popup({
+    Active:{
+        INPUT,
+        OUTPUT
+    },
+    hadderCLick
+}:{
+    Active:{
+    INPUT:any
+    OUTPUT:any
+    },
+    hadderCLick:(action:any,e:any)=>void
+}
+) {
     const  popup  = usepopupTokenlist()
     const [actionname,action] = popup.action.split('.');
     const  [listtoken, error, pending,inputaddress, searchToken] = useListToken()
-    let INPUT:any,OUTPUT:any;
-    if(actionname=='SWAP'){
-        const state = useSwapState()
-        INPUT=state.INPUT
-        OUTPUT=state.OUTPUT
-    }else if(actionname=='AddLiquidity'){
-        const state = useAddliquidity()
-        INPUT=state.INPUT
-        OUTPUT=state.OUTPUT
-    }else if(actionname=='RemoveLiquidity'){
-      
-    }
-    else if(actionname=='Import'){
-      
-    }
-    
     const {onUserChangpopup} = useApplicationHandlers()
-    
-    const {onCurrencySelection} = useSwapActionHandlers();
-    const { onCurrencySelection:liquidity }= useAddliquidityHandlers()
    
     const active = (tn:any):boolean=>{
-        let b;
-        if(tn.type=='native'){
-            b = (INPUT.type=='native')||(OUTPUT.type=='native'); 
+        let b = false;
+        if(typeof INPUT!='string'){
+            if(INPUT.symbol){
+                return b;
+            }else{
+                if(tn.type=='native'){
+                    b = (INPUT.type=='native')||(OUTPUT.type=='native'); 
+                }else{
+                    b = (tn.address==INPUT.key)||(tn.address==OUTPUT.key);  
+                }
+                return b;
+            }
         }else{
-            b = (tn.address==INPUT.key)||(tn.address==OUTPUT.key);  
+            return b;
         }
-        return b;
     }
-    function hadderCLick(value:any){
-        if(actionname=='SWAP'){
-            onCurrencySelection(action,value)
-        }else if(actionname=='AddLiquidity'){
-            liquidity(action,value)
-        }else if(actionname=='RemoveLiquidity'){
-          
-        }
-        else if(actionname=='Import'){
-          
-        }
-        onUserChangpopup(false) 
-       
+    function hadderCLicks(action:any,value:any){
+        hadderCLick(action,value)
+        onUserChangpopup(false)
     }
+    const   {status:ispopupopen}  = usepopupTokenlist()
     return (
-        <Container >
+        <>
+        {
+         ispopupopen&&<Container >
             <Contain> 
-                <ContentTitle>
+            <ContentTitle>
                 <Title >
                     <i onClick={() => { onUserChangpopup(false) }} className="ion ion-md-close"></i>
                 </Title>
@@ -74,7 +70,7 @@ export default function Popup() {
                 <ContentListToken>
                     {!pending?Object.entries(listtoken).map(([key, value]:any) =>
                                 <WrapToken style={(active(value))?{opacity:'0.3'}:{}} key={key} onClick={()=>{
-                                    hadderCLick(value)
+                                    hadderCLicks(action,value)
                                 }}>
                                 <LogoToken   src={value.logoURI}/>
                                 <Name >
@@ -85,7 +81,7 @@ export default function Popup() {
                                     value.status!='active'?<Lodding></Lodding>:<p>
                                     {(Math.pow(10, -value.decimals) * value.balance).toFixed(
                                         8
-                                      )}
+                                        )}
                                       </p>
                                 }
                             </WrapToken>
@@ -93,6 +89,8 @@ export default function Popup() {
                 </ContentListToken>
             </Contain>
         </Container>
+        }
+    </>
     )
     
 }

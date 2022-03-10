@@ -49,21 +49,13 @@ export function useTokenActive(Field:Field,action:string=''):any{
         return gettoken(state,Field,action)
      })
 }
-export function useAddliquidity():RootState['addliquidity']{
-  return useAppSelector((state:RootState) =>{
-     return state.addliquidity
-  })
-}
+
 export function gettoken(state:RootState,Field:Field,action:string=''):any{
   const currency = state.balance.currency
   const Token  = state.balance.token
   const Tokendb = state.balance.tokendb
   let tn ;
-  if(action=='swap'||action==''){
-    tn = state.swap[Field]
-  }else {
-    tn = state.addliquidity[Field]
-  }
+   tn = state.swap[Field]
   if(tn.type=='native'){
       return currency[tn.key as string];
     }else if(tn.type=='tokendb'){

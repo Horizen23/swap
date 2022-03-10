@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-dom";
 import { TokenToggl, Wrapimg,WrapInput,InputAmount } from './Swap';
 import PopupSelecttoken from "./Popup";
-import { useAddliquidity, useAddliquidityHandlers, useDerivedaddliquidity, useTokenActive } from '../hook/addliquidity';
+import { useDerivedaddliquidity } from '../hook/addliquidity';
 import { useApplicationHandlers } from '../hook/application';
 import { activePoppup } from '../features/page/pageSlice';
 import { useParams } from 'react-router';
@@ -15,23 +15,20 @@ import { getselectInfo, useAllTokens } from '../hook/token';
 import { WrapStatePair } from '../features/pool/pair';
 import { useMintActionHandlers, useMintState } from '../features/mint/hooks';
 import {Field} from '../features/mint/actions'
+import Popup from './Popup';
+import { BtnSuccess } from '../hook/swap';
 export default  memo(function AddLiquidity(){
-
-  const noLiquidity = false;
-  const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
-  const {pair:{status:actionpair,value:pair},ButtonAppove,tokenA,tokenB} = useDerivedaddliquidity()
+  const history = useNavigate()
+  const{ formattedAmounts,pair,isactive,tokenA,tokenB,noLiquidity,Btnstatus} = useDerivedaddliquidity()
+  const {onFieldAInput,onFieldBInput,onresetMint} = useMintActionHandlers(noLiquidity)
   const wpair = new WrapStatePair(pair)
-  const { independentField, typedValue, otherTypedValue } = useMintState()
-  const dependentField = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT;
-  const formattedAmounts:any = {
-    [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : '999' ?? '',
-  }
-
+  useEffect(()=>{
+    return onresetMint()
+  },[])
   return (
-    <div className="row justify-content-md-center mt-4">
-     {JSON.stringify({ formattedAmounts })}
-    <Container >
+  <div className="row justify-content-md-center mt-4">
+    <Container style={{'height':'auto'}}>
+     
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -39,27 +36,28 @@ export default  memo(function AddLiquidity(){
           </WrapNavLink>
           <TitleText>Add Liquidity</TitleText>
       </Row>  
-      <InputToken  Field={Field.INPUT} onFieldInput={onFieldAInput} amount={formattedAmounts[Field.INPUT]}/>
-      <InputToken  Field={Field.OUTPUT} onFieldInput={onFieldBInput} amount={formattedAmounts[Field.OUTPUT]}/> 
+      {/* {JSON.stringify(formattedAmounts)} */}
+      <InputToken token={tokenA} Field={Field.INPUT} onFieldInput={onFieldAInput} amount={formattedAmounts[Field.INPUT]}/>
+      <p>balance:4565</p>
+      <InputToken token={tokenB} Field={Field.OUTPUT} onFieldInput={onFieldBInput} amount={formattedAmounts[Field.OUTPUT]}/> 
+      <p>balance:4565</p>
       
         <InfoInputStatus>
           <div>
               <p>{tokenA.symbol} per {tokenB.symbol}</p>
-              <p>{actionpair=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
+              <p>{isactive=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
           </div>
           <div>
               <p>{tokenB.symbol} per {tokenA.symbol}</p>
-              <p>{actionpair=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
+              <p>{isactive=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
           </div>
           <div>
               <p>Share of Pool</p>
               <p>0 %</p>
           </div>
       </InfoInputStatus>
-      
-
-      {ButtonAppove}
-        {(actionpair=='active'&&wpair.ispoolshare)&& (
+      {Btnstatus?Btnstatus:<BtnSuccess>Add Liquidity</BtnSuccess>}
+        {(isactive=='active'&&wpair.ispoolshare)&& (
         <ManagePari style={{'marginTop':'20px'}}>
               <p>Share of Pool</p>
              <div>
@@ -87,14 +85,32 @@ export default  memo(function AddLiquidity(){
           <div></div>
       </ManagePari>
       )}
+
+       <Popup  Active={{
+        INPUT:tokenA,
+        OUTPUT:tokenB,
+      }}hadderCLick={(field,token)=>{
+        const key1 = token.type=='native'?token.symbol:token.address;
+        let key2;
+        if(field=='INPUT'){
+             key2 = tokenB.type=='native'?tokenB.symbol:tokenB.address
+             if(key1!=key2){
+               history(`/app/view/liquidity/add/${key1}/${key2}`, { replace: true })
+             }
+        }else{
+             key2 = tokenB.type=='native'?tokenB.symbol:tokenB.address
+             if(key1!=key2){
+              history(`/app/view/liquidity/add/${key2}/${key1}`, { replace: true })
+            }
+        }
+      }}/>
     </Container>
 
     </div>
   );
 })
 
-function InputToken({Field,onFieldInput,amount}:{Field:Field,onFieldInput:any,amount:any}){
-  const token = useTokenActive(Field)
+function InputToken({Field,onFieldInput,amount,token}:{Field:Field,onFieldInput:any,amount:any,token:TToken}){
   const {onUserChangpopup} = useApplicationHandlers()
   return (  
   <WrapTokenInput>

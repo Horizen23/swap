@@ -10,12 +10,14 @@ import { Listener } from 'redux-subscribe-action';
 import swap from '../features/swap/reducer'
 import router from '../features/swap/router'
 import transaction from '../features/transaction/reducer'
-import addliquidity from '../features/pool/addliquidity'
+// import addliquidity from '../features/pool/addliquidity'
 import pair from '../features/pool/pair'
 import mint from '../features/mint/reducer'
+import burn from '../features/burn/reducer'
 
 export const store = configureStore({
   reducer: {
+    burn,
     mint,
     swap,
     router,
@@ -23,7 +25,7 @@ export const store = configureStore({
     transaction,
     action: counterReducer,
     balance: balanceReducer,
-    addliquidity
+    // addliquidity
   }
 })
 let t:boolean;

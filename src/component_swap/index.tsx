@@ -23,7 +23,7 @@ function App() {
     useEffect(() => {
         loadWalletHook(currency)
     }, []);
-    const   {status:ispopupopen}  = usepopupTokenlist()
+   
     return (
         <BrowserRouter>
             <Navbar>
@@ -51,7 +51,7 @@ function App() {
 
             </Routes>
             <Notification/>
-            {ispopupopen&&<Popup/>}
+           
         </BrowserRouter>
     )
 

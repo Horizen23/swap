@@ -43,6 +43,19 @@ export function useTrackedTokenPairs(): any {
         dispatch(Getpair(generatedPairs))
     },[])
 }
+export function usePair(TokenA:any,TokenB:any){
+    const [status ,setstatus] = useState<'loading'|'active'>('loading');
+    const [pair,setpair] = useState({})
+    const pr =  creatPaiaOffchain(TokenA,TokenB)
+    useEffect(()=>{
+        setstatus('loading')
+        MHGWallet.api.getpair([pr.address]).then(vue=>{
+            setpair({...pr,...vue[pr.address]})
+            setstatus('active')
+        })
+    },[pr.address])
+    return [status,pair]
+}
 export function creatPaiaOffchain(tokenA:TToken,tokenB:TToken){
     const pair = computePairAddress(tokenA, tokenB)
     return  {
