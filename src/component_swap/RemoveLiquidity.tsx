@@ -70,12 +70,9 @@ export default  function RemoveLiquidity() {
     </Price>
       </Pricetext>
       <Approve>
-      <Btnappove>
-        Approve
-      </Btnappove>
-      <Btnappove>
-      Enter an amount
-      </Btnappove>
+      <Btnappove>Approve</Btnappove>
+      <Btnappove>Enter an amount</Btnappove>
+      {/* Remove */}
       </Approve>
     </Container>
     </div>
@@ -94,7 +91,9 @@ const Receive = styled.div`
 
 const Approve = styled.div`
 display: flex;
-justify-content: space-around;
+justify-content: space-evenly;
+flex-direction: column;
+align-items: stretch;
 margin: 20px;
 `
 const Btnappove = styled.button`
@@ -109,8 +108,13 @@ margin: 7px 13px;
 cursor: pointer;
 border-radius: 16px;
 color: #4A4A4A;
-  font-weight: 500;
-  font-size: 15px;
+font-weight: 500;
+font-size: 15px;
+ transition-duration: 0.4s;
+ :hover {
+  background-color: #C9F9D3; /* Green */
+  color: #6E6060;
+}
 `
 
 const Dprice = styled.div`
