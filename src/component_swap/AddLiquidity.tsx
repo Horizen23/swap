@@ -1,4 +1,4 @@
-import { WrapNavLink,Row,Container,TitleText } from './Liquidity';
+import { WrapNavLink,Row,Container,TitleText, Nameinfo } from './Liquidity';
 import { store } from "../store";
 import { Provider, useSelector } from "react-redux";
 import * as ReactDOM from "react-dom";
@@ -8,32 +8,21 @@ import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-d
 import { TokenToggl, Wrapimg,WrapInput,InputAmount } from './Swap';
 import PopupSelecttoken from "./Popup";
 import { Field } from '../features/swap/reducer';
-import { useAddliquidity, useAddliquidityHandlers, useTokenActive } from '../hook/addliquidity';
+import { useAddliquidity, useAddliquidityHandlers, useDerivedaddliquidity, useTokenActive } from '../hook/addliquidity';
 import { useApplicationHandlers } from '../hook/application';
 import { activePoppup } from '../features/page/pageSlice';
 import { useParams } from 'react-router';
 import { getselectInfo, useAllTokens } from '../hook/token';
+import { WrapStatePair } from '../features/pool/pair';
 
 export default  memo(function AddLiquidity(){
   const [onCurrencySelect, setonCurrencySelect] = useState<1 | 2 | 0>(0);
-  const stateAddliquidity = useAddliquidity();
-  const { currencykeyA,currencykeyB } = useParams();
-  const {onCurrencySelection} = useAddliquidityHandlers()
-  const history = useNavigate();
-  useEffect(()=>{
-    onCurrencySelection(Field.INPUT,getselectInfo(currencykeyA!) )
-    onCurrencySelection(Field.OUTPUT,getselectInfo(currencykeyB!))
-  },[])
-  useEffect(()=>{
-    if(stateAddliquidity.OUTPUT.key&&stateAddliquidity.INPUT.key){
-      // console.log(`/app/view/liquidity/add/${stateAddliquidity.INPUT.key}/${stateAddliquidity.OUTPUT.key}`)
-      history(`/app/view/liquidity/add/${stateAddliquidity.INPUT.key}/${stateAddliquidity.OUTPUT.key}`, { replace: true })
-    }
-  },[stateAddliquidity.OUTPUT.key,stateAddliquidity.INPUT.key])
-  // history(`/app/view/liquidity/add/0x30a13C9941e9E6316C6494A47dcC528BAbbc5773/ETH`, { replace: true })
-
+  const {pair:{status:actionpair,value:pair},ButtonAppove,tokenA,tokenB} = useDerivedaddliquidity()
+  const wpair =new WrapStatePair(pair)
+  console.log(wpair)
   return (
     <div className="row justify-content-md-center mt-4">
+     
     <Container >
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
@@ -44,7 +33,54 @@ export default  memo(function AddLiquidity(){
       </Row>  
        <InputToken  Field={Field.INPUT} />
       <InputToken  Field={Field.OUTPUT}/> 
+      
+        <InfoInputStatus>
+          <div>
+              <p>{tokenA.symbol} per {tokenB.symbol}</p>
+              <p>{actionpair=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
+          </div>
+          <div>
+              <p>{tokenB.symbol} per {tokenA.symbol}</p>
+              <p>{actionpair=='active'&&!wpair.isnewpool?wpair.getpriceA():'-'}</p>
+          </div>
+          <div>
+              <p>Share of Pool</p>
+              <p>0 %</p>
+          </div>
+      </InfoInputStatus>
+      
+
+      {ButtonAppove}
+        {(actionpair=='active'&&wpair.ispoolshare)&& (
+        <ManagePari style={{'marginTop':'20px'}}>
+              <p>Share of Pool</p>
+             <div>
+             <WNameeinfo>
+                <div className="imageInfo">
+                  <img src={wpair.token0.logoURI} />
+                  <img src={wpair.token1.logoURI} />
+                </div>
+                <div> {wpair.token0.symbol}/{wpair.token1.symbol} </div>
+              </WNameeinfo>
+                <p>51.96</p>
+             </div>
+             <div>
+                <p>Your pool share:</p>
+                <p>{wpair.getpercent()}% </p>
+             </div>
+             <div>
+                <p>{wpair.token0.symbol}:</p>
+                <p>{wpair.balanceReservesA()*1e-18}</p>
+             </div>
+             <div>
+                <p>{wpair.token1.symbol}:</p>
+                <p>{wpair.balanceReservesB()*1e-18}</p>
+             </div>
+          <div></div>
+      </ManagePari>
+      )}
     </Container>
+
     </div>
   );
 })
@@ -81,6 +117,93 @@ function InputToken({Field}:{Field:Field}){
   )
 }
 
+
+const InfoInputStatus =styled.div`
+    display: flex;
+    width: 100%;
+    background: #ffffff; 
+    padding: 18px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    justify-content: space-evenly;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+& div{
+    box-shadow: 0 0 25px 2px rgb(0 0 0 / 5%);
+    background: #ffffffb3;
+    padding: 10px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+& div p{
+  margin: 0;
+}
+& div p:first-child{
+  font-weight: bold;
+  font-size: 15px;
+  color: #7c7272;
+  margin-bottom: 5px;
+}
+& div p:last-child{
+  background: #f6f6f691;
+    color: #505050;
+    border: 1px solid #dddddd80;
+    width: 100%;
+    border-radius: 5px;
+  
+}
+`
+const WNameeinfo = styled(Nameinfo)`
+& .imageInfo {
+  align-items: center;
+  width: 40px;
+}
+& img:last-child {
+  left: 14px;
+}
+&  img {
+  width: 21px;
+}
+& div:last-child{
+  margin-left: 0;
+  margin-top: 0 !important;
+  color: #4A4A4A;
+  align-items: center;
+  font-weight: inherit;
+  font-size: 13px;
+}
+`
+
+const ManagePari = styled.div`
+width: 100%;
+left: 233px;
+top: 440px;
+background: #F0F3FF;
+padding: 18px;
+border: 1px solid #516AE4;
+box-sizing: border-box;
+border-radius: 16px;
+& div:not(:last-child) {
+  display:flex;
+  justify-content: space-between;
+  color: #4A4A4A;
+  font-weight: 500;
+  font-size: 15px;
+}
+& p{
+  margin:0;
+} 
+& div:last-child{
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 17px;
+}
+`
 
 const WrapTokenInput = styled.div`
     margin-bottom: 6px;

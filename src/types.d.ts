@@ -56,21 +56,20 @@ export declare global {
     type ListCurrency = {
         [key:string]:TToken;
     }
-
     type pair = {
-        "address": string,
-        "decimals": string|number,
-        "symbol": string,
-        "name": string,
-        "totalSupply": string,
-        "balanceOf": string,
-        "Reserves": {
-            "reserve0": string,
-            "reserve1": string,
-            "blockTimestampLast": string|number,
+        address: string,
+        decimals: string|number,
+        symbol: string,
+        name: string,
+        totalSupply: string,
+        balanceOf: string,
+        Reserves: {
+            reserve0: string,
+            reserve1: string,
+            blockTimestampLast: string|number,
         }
-        "token0":TToken
-        "token1":TToken
+        token0:TToken
+        token1:TToken
     }
     type ListToken = {
         [key:string]:TToken;

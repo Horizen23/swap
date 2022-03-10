@@ -1,12 +1,12 @@
 import JSBI  from 'jsbi';
-import { store } from './../../store/index';
+import { store } from '../../store/index';
 import { createAction, createAsyncThunk, createReducer } from '@reduxjs/toolkit'
 import { gettoken, useTokenActive } from '../../hook/swap';
 var MaxUint256 = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
 
 export const Getpair = createAsyncThunk(
-  'Pari/getpair',
+  'Pair/getpair',
   async (generatedPairs:any, { rejectWithValue }) => {
     try {
       const addressPair = generatedPairs.map((v:any)=>v.address);
@@ -24,7 +24,7 @@ export const Getpair = createAsyncThunk(
   }
 );
 
-interface IPari {
+interface IPair {
       address: string,
      decimals: string|number,
      symbol: string,
@@ -42,23 +42,26 @@ interface IPari {
      getpercent:()=>number;
      balanceReservesA:()=>number;
      balanceReservesB:()=>number;
-
+     getpriceA:()=>number;
+     getpriceB:()=>number;
+    ispoolshare:boolean,
+    isnewpool: boolean 
 
      
   // members of your "class" go here
 }
 
-type StatusPari = 'loading'|'failed'|'active'|'idle'
-export interface Paristate {
-    readonly status:StatusPari;
-    readonly list:pair|{};
+type StatusPair = 'loading'|'failed'|'active'|'idle'
+export interface Pairstate {
+    readonly status:StatusPair;
+    readonly list:{[key:string]:pair};
 }
-const initialState: Paristate = {
+const initialState: Pairstate = {
     status:'idle',
     list:{},
 }
 
-export default createReducer<Paristate>(initialState, (builder) =>
+export default createReducer<Pairstate>(initialState, (builder) =>
   builder
   .addCase(Getpair.pending,( state:any)=>{
     state.status = 'loading'
@@ -78,7 +81,7 @@ export default createReducer<Paristate>(initialState, (builder) =>
 
 )
 
-export const WrapStatePair = function(this:IPari,pair: any) {
+export const WrapStatePair = function(this:IPair,pair: any) {
   this.Reserves = pair.Reserves
   this.address = pair.address
   this.balanceOf = pair.balanceOf
@@ -101,7 +104,26 @@ export const WrapStatePair = function(this:IPari,pair: any) {
   this.balanceReservesB = () =>{
     return +this.Reserves.reserve1/100*this.getpercent()
   }
-} as any as { new (txt: any): IPari }
+  this.getpriceA = () =>{
+    return +this.Reserves.reserve1/+this.Reserves.reserve0
+  }
+  this.getpriceB = () =>{
+    return +this.Reserves.reserve0/+this.Reserves.reserve1
+  }
+  Object.defineProperties(this, {
+    ispoolshare: {
+         get: function() {
+            return   this.balanceOf>0
+      },
+    },
+    isnewpool:{
+      get:function(){
+        return typeof this.Reserves=='undefined'
+      }
+    }
+    
+  })
+} as any as { new (txt: any): IPair }
 
 
 

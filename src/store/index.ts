@@ -11,13 +11,15 @@ import swap from '../features/swap/reducer'
 import router from '../features/swap/router'
 import transaction from '../features/transaction/reducer'
 import addliquidity from '../features/pool/addliquidity'
-import pari from '../features/pool/pari'
+import pair from '../features/pool/pair'
+import mint from '../features/mint/reducer'
 
 export const store = configureStore({
   reducer: {
+    mint,
     swap,
     router,
-    pari,
+    pair,
     transaction,
     action: counterReducer,
     balance: balanceReducer,

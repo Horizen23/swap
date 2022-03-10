@@ -16,7 +16,7 @@ import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
 import { useAllTokens } from "./token";
 import { keccak256, solidityKeccak256, solidityPack } from "ethers/lib/utils";
-import { Getpair } from "../features/pool/pari";
+import { Getpair } from "../features/pool/pair";
 
 const BASES_TO_TRACK_LIQUIDITY:string[] = [
     'ETH'
@@ -34,13 +34,7 @@ export function useTrackedTokenPairs(): any {
             } else {
             //   return [tokens[address], tokens[tokenKey]]
                     
-                const pair = computePairAddress(tokens[address], tokens[tokenKey])
-                return  {
-                    ...pair,
-                    decimals:18,
-                    symbol:'UNI-V2',
-                    name:'Uniswap V2'
-                }
+                return  creatPaiaOffchain(tokens[address], tokens[tokenKey])
             }
         })
         .filter((p): p is any => p !== null)
@@ -49,12 +43,20 @@ export function useTrackedTokenPairs(): any {
         dispatch(Getpair(generatedPairs))
     },[])
 }
-
-export function usepari():RootState['pari']  {
-    return useAppSelector((state:RootState) => state.pari)
+export function creatPaiaOffchain(tokenA:TToken,tokenB:TToken){
+    const pair = computePairAddress(tokenA, tokenB)
+    return  {
+        ...pair,
+        decimals:18,
+        symbol:'UNI-V2',
+        name:'Uniswap V2'
+    }
+}
+export function usepair():RootState['pair']  {
+    return useAppSelector((state:RootState) => state.pair)
 }
 
-function computePairAddress(tokenA:any,tokenB:any) {
+export function computePairAddress(tokenA:any,tokenB:any) {
     var factoryAddress = '0x9cb01917bE987d1DC3d0c70E2AFecC1B4648A268';
     var INIT_CODE_HASH = '0x7e49d5a452686e20f3694c8b7da9ce371fddadafe40ae661631501370842bf9b';
     let  addressA,addressB;

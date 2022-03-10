@@ -380,17 +380,17 @@ const BtnSwap = styled.button`
     //   }
     // }
 `
-const BtnError = styled(BtnSwap)`
+export const BtnError = styled(BtnSwap)`
 cursor: no-drop;
 color: rgb(145 140 140);
 background-color: #afb5cc3d;
 `
-const BtnSuccess = styled(BtnSwap)`
+export const BtnSuccess = styled(BtnSwap)`
 cursor: no-drop;
 color: rgb(145 140 140);
 background-color: rgb(187 246 218);
 `
-const BtnLogin = styled(BtnSwap)`
+export const BtnLogin = styled(BtnSwap)`
     color: rgb(255 255 255);
     background-color: rgb(255 188 90);
 `
