@@ -7,22 +7,30 @@ import styled from "styled-components";
 import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-dom";
 import { TokenToggl, Wrapimg,WrapInput,InputAmount } from './Swap';
 import PopupSelecttoken from "./Popup";
-import { Field } from '../features/swap/reducer';
 import { useAddliquidity, useAddliquidityHandlers, useDerivedaddliquidity, useTokenActive } from '../hook/addliquidity';
 import { useApplicationHandlers } from '../hook/application';
 import { activePoppup } from '../features/page/pageSlice';
 import { useParams } from 'react-router';
 import { getselectInfo, useAllTokens } from '../hook/token';
 import { WrapStatePair } from '../features/pool/pair';
-
+import { useMintActionHandlers, useMintState } from '../features/mint/hooks';
+import {Field} from '../features/mint/actions'
 export default  memo(function AddLiquidity(){
-  const [onCurrencySelect, setonCurrencySelect] = useState<1 | 2 | 0>(0);
+
+  const noLiquidity = false;
+  const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
   const {pair:{status:actionpair,value:pair},ButtonAppove,tokenA,tokenB} = useDerivedaddliquidity()
-  const wpair =new WrapStatePair(pair)
-  console.log(wpair)
+  const wpair = new WrapStatePair(pair)
+  const { independentField, typedValue, otherTypedValue } = useMintState()
+  const dependentField = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT;
+  const formattedAmounts:any = {
+    [independentField]: typedValue,
+    [dependentField]: noLiquidity ? otherTypedValue : '999' ?? '',
+  }
+
   return (
     <div className="row justify-content-md-center mt-4">
-     
+     {JSON.stringify({ formattedAmounts })}
     <Container >
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
@@ -31,8 +39,8 @@ export default  memo(function AddLiquidity(){
           </WrapNavLink>
           <TitleText>Add Liquidity</TitleText>
       </Row>  
-       <InputToken  Field={Field.INPUT} />
-      <InputToken  Field={Field.OUTPUT}/> 
+      <InputToken  Field={Field.INPUT} onFieldInput={onFieldAInput} amount={formattedAmounts[Field.INPUT]}/>
+      <InputToken  Field={Field.OUTPUT} onFieldInput={onFieldBInput} amount={formattedAmounts[Field.OUTPUT]}/> 
       
         <InfoInputStatus>
           <div>
@@ -85,11 +93,8 @@ export default  memo(function AddLiquidity(){
   );
 })
 
-function InputToken({Field}:{Field:Field}){
+function InputToken({Field,onFieldInput,amount}:{Field:Field,onFieldInput:any,amount:any}){
   const token = useTokenActive(Field)
-  const {typedValue,independentField} = useAddliquidity()
-  const { onUserInput }= useAddliquidityHandlers()
-  let quote =1;
   const {onUserChangpopup} = useApplicationHandlers()
   return (  
   <WrapTokenInput>
@@ -105,11 +110,9 @@ function InputToken({Field}:{Field:Field}){
       <WrapInput>
         <InputAmount
           placeholder="0.00"
-          value={independentField==Field?typedValue:(quote?
-            (status=='active'?(+quote)*1e-18:'')
-             :'')}
+          value={amount}
           pattern="^-?[0-9]\d*\.?\d*$"
-          onInput={(e:any)=>(e.target.validity.valid) ? onUserInput(Field, e.target.value) : false}
+          onInput={(e:any)=>(e.target.validity.valid) ? onFieldInput(e.target.value) : false}
 
         />
     </WrapInput>
