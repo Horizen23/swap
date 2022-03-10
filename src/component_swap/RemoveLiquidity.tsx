@@ -9,7 +9,7 @@ import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
 export default  function RemoveLiquidity() {
   return (
     <div className="row justify-content-md-center mt-4">
-    <Container >
+    <Container style={{ 'height':'auto' }}>
       <Row style={{'justifyContent':'center'}}>
           <WrapNavLink to='/app/view/liquidity' style={{position: 'absolute','left': '0'}}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -36,10 +36,12 @@ export default  function RemoveLiquidity() {
       <Btnrange>Max</Btnrange>
       </Percent>
       </Range>
+  
       <svg style={{ "margin":"20 auto" }} width="24" height="23" viewBox="0 0 24 23" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10.9393 22.0607C11.5251 22.6464 12.4749 22.6464 13.0607 22.0607L22.6066 12.5147C23.1924 11.9289 23.1924 10.9792 22.6066 10.3934C22.0208 9.80761 21.0711 9.80761 20.4853 10.3934L12 18.8787L3.51472 10.3934C2.92893 9.80761 1.97918 9.80761 1.3934 10.3934C0.807612 10.9792 0.807612 11.9289 1.3934 12.5147L10.9393 22.0607ZM10.5 0L10.5 21H13.5L13.5 0L10.5 0Z" fill="#646775"/>
 </svg>
-      <Price>
+
+      <Prices>
       <Dprice>
       <div>
       <p>-</p>
@@ -49,13 +51,56 @@ export default  function RemoveLiquidity() {
       <p>-</p>
       <p>BTC</p>
       </div>
-      <p style={{ margin:'5px','left':2 ,color:'#000000' }}>Receive BTC</p>
+      <p>Receive BTC</p>
       </Dprice>
-      </Price>
+      </Prices>
+      <Pricee>
+      <p>Price:</p>
+      </Pricee>
+      <Pricetext>
+    <Price>     
+      <div>
+      <p>1 USDT = 0.01 BTC</p>
+      </div>
+      <div>
+      <p>1 BTC = 100 USDT</p>
+      </div>
+    </Price>
+      </Pricetext>
+      <Approve>
+      <Btnappove>
+        Approve
+      </Btnappove>
+      <Btnappove>
+      Enter an amount
+      </Btnappove>
+      </Approve>
     </Container>
     </div>
   );
+
 }
+const Approve = styled.div`
+display: flex;
+justify-content: space-around;
+margin: 20px;
+`
+const Btnappove = styled.button`
+background-color: #EFEFEF;
+border: none;
+color: black;
+padding: 15px 40px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+margin: 7px 13px;
+cursor: pointer;
+border-radius: 16px;
+color: #4A4A4A;
+  font-weight: 500;
+  font-size: 15px;
+`
+
 const Dprice = styled.div`
 box-sizing: border-box;
 border-radius: 16px;
@@ -67,6 +112,27 @@ border-radius: 16px;
   font-size: 15px;
 }
 `
+const Price = styled.div`
+box-sizing: border-box;
+border-radius: 16px;
+& div {
+  display:flex;
+  justify-content: space-between;
+  color: #4A4A4A;
+  font-weight: 500;
+  font-size: 15px;
+}
+`
+
+const Pricee = styled.div`
+display: flex;
+flex-direction: column;
+  color: #4A4A4A;
+  font-weight: 500;
+  font-size: 15px;
+}
+`
+
 
 const Percent = styled.div`
 display: flex;
@@ -81,7 +147,6 @@ const Inputrange = styled.input`
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    width: 600px;
     height: 5px;
     padding: 0;
     border-radius: 20px;
@@ -138,7 +203,7 @@ user-select: none;
   padding: 4px 20px;
   
 `
-const Price = styled.div`
+const Prices = styled.div`
 user-select: none;
   background: rgba(223, 213, 213, 0.19);
   border-radius: 31px;
@@ -151,4 +216,16 @@ user-select: none;
   padding: 4px 20px;
   
 `
-
+const Pricetext = styled.div`
+user-select: none;
+  align-items: center;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 107px;
+  margin-bottom:10px;
+  padding: 4px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+`
