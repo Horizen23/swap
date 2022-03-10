@@ -51,13 +51,15 @@ export default  function RemoveLiquidity() {
       <p>-</p>
       <p>BTC</p>
       </div>
-      <p>Receive BTC</p>
       </Dprice>
+      <Receive>
+      <p>Receive BTC</p>
+      </Receive>
       </Prices>
+      <Pricetext>
       <Pricee>
       <p>Price:</p>
       </Pricee>
-      <Pricetext>
     <Price>     
       <div>
       <p>1 USDT = 0.01 BTC</p>
@@ -80,13 +82,23 @@ export default  function RemoveLiquidity() {
   );
 
 }
+
+const Receive = styled.div`
+  color: #766767;
+  font-weight: 400;
+  font-size: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+`
+
 const Approve = styled.div`
 display: flex;
 justify-content: space-around;
 margin: 20px;
 `
 const Btnappove = styled.button`
-background-color: #EFEFEF;
+background-color: #ECEDF3;
 border: none;
 color: black;
 padding: 15px 40px;
@@ -128,7 +140,7 @@ const Pricee = styled.div`
 display: flex;
 flex-direction: column;
   color: #4A4A4A;
-  font-weight: 500;
+  font-weight: 400;
   font-size: 15px;
 }
 `
@@ -227,5 +239,7 @@ user-select: none;
   padding: 4px 20px;
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 `
