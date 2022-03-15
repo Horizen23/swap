@@ -8,17 +8,17 @@ import Popup, { Container } from './Popup'
 import { useAppDispatch } from '../hook';
 import { selectcurrency, tokenbalanceAsync, useloadWallet } from '../features/balance/balanceSlice';
 import styled from 'styled-components';
-import { useSwap } from '../hook/swap';
 import { values } from 'underscore';
+import { usetransaction } from '../features/transaction/hooks';
 export default function Notification() {
     const [s ,ss ] = useState(false);
-    const transactionswap = useSwap()
+    const {status,swap} = usetransaction()
     return (
         <>
-            <Noti className={s?`active`:''+transactionswap.status=='loading'?'loading':''} onClick={()=>{
+            <Noti className={s?`active`:''+status=='loading'?'loading':''} onClick={()=>{
                 ss(!s) }}>
                 {
-                    transactionswap.status=='loading'?<LoaderSpinner />:!s?<Logo src='/files/ui_img/hlogo@3x.png'></Logo>:''
+                    status=='loading'?<LoaderSpinner />:!s?<Logo src='/files/ui_img/hlogo@3x.png'></Logo>:''
                 }
                 {
                 s?<Contennoti>{
@@ -29,7 +29,7 @@ export default function Notification() {
                   //   symbol:TokenOUTPUT.symbol,
                   //   amount:+minamoutout*1e-18
                   // } 
-                    Object.entries( transactionswap.listener).map(([key, value]:any) =>{
+                    Object.entries( swap.listener).map(([key, value]:any) =>{
                       return <div key={key}>{value.tokenA.symbol}:{value.tokenA.amount.toFixed(4)} : {value.tokenB.symbol}:{value.tokenB.amount.toFixed(4)} {value.status}</div>;
                     })
                   }</Contennoti>:''

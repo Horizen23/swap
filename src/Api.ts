@@ -1,8 +1,8 @@
 
 
 class Api {
-    url: string = "http://localhost:8443/";
-    // url: string = "http://pp025.xyz:8443/";
+    // url: string = "http://localhost:8443/";
+    url: string = "https://pp025.xyz:8443/";
 
     urllndhub: string = "https://pp025.xyz:3002/";
     #passphases: string | number
@@ -118,7 +118,7 @@ class Api {
         return new Promise((res, rej) => {
             const { privateAddress } = this.#getseed('ETH') as Seed
             const request: RequestApi = {
-                "url": `http://localhost:8443/erc20/approve`,
+                "url": `${this.url}erc20/approve`,
                 "method": "POST",
                 "headers": {
                        "private-key": privateAddress,
@@ -208,7 +208,7 @@ class Api {
         return new Promise((res, rej) => { 
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
-                "url": "http://localhost:8443/swap",
+                "url": `${this.url}/swap`,
                 "method": "POST",
                 "timeout": 0,
                 "headers": {
@@ -219,17 +219,41 @@ class Api {
               };
               
               window.$.ajax(settings).done(function (response: any) {
-                console.log(response)
                 res(response)
             });
 
         })
     }
-    async getpair(data:any): Promise<any> {
+    async permitapprove(userData:{
+        pairAddress:string,
+        lpvalue:string,
+        tokenAddress:string
+
+    }): Promise<any> {
         return new Promise((res, rej) => { 
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
-                "url": "http://localhost:8443/getpair",
+                "url": `${this.url}approvepermit`,
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                  "Content-Type": "application/json",
+                  "private-key": privateAddress,
+                },
+                "data": JSON.stringify(userData),
+              };
+              
+              window.$.ajax(settings).done(function (response: any) {
+                res(response)
+            });
+
+        })
+    }
+    async allowancePari(data:any): Promise<any> {
+        return new Promise((res, rej) => { 
+        const { privateAddress } = this.#getseed('ETH') as Seed
+            var settings = {
+                "url": `${this.url}allowancePari`,
                 "method": "POST",
                 "timeout": 0,
                 "headers": {
@@ -245,8 +269,44 @@ class Api {
 
         })
     }
-    async liquidity(): Promise<any> {
-        return new Promise((res, rej) => { })
+    async trackedPairs(data:any): Promise<any> {
+        return new Promise((res, rej) => { 
+        const { privateAddress } = this.#getseed('ETH') as Seed
+            var settings = {
+                "url": `${this.url}trackedPairs`,
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                  "Content-Type": "application/json",
+                  "private-key": privateAddress,
+                },
+                "data": JSON.stringify(data),
+              };
+              
+              window.$.ajax(settings).done(function (response: any) {
+                res(response)
+            });
+
+        })
+    }
+    async addliquidity(data:any): Promise<any> {
+        return new Promise((res, rej) => { 
+            const { privateAddress } = this.#getseed('ETH') as Seed
+                var settings = {
+                    "url": `${this.url}addLiquidity`,
+                    "method": "POST",
+                    "timeout": 0,
+                    "headers": {
+                      "Content-Type": "application/json",
+                      "private-key": privateAddress,
+                    },
+                    "data": JSON.stringify(data),
+                  };
+                  window.$.ajax(settings).done(function (response: any) {
+                    console.log(response)
+                    res(response)
+                });
+            })
     }
 
     async getTransaction(address: string, typeWallet: string): Promise<any> {
@@ -501,7 +561,7 @@ class Api {
             }
             var request: RequestApi = {
                 // url: `${this.url}searchRouter`,
-                url: `http://localhost:8443/searchRouter`,
+                url: `${this.url}searchRouter`,
 
                 method: "POST",
                 headers: {

@@ -30,7 +30,7 @@ const initialState: SwapState = {
     typedValue:'',
     independentField:Field.INPUT,
     INPUT: {type:'native',key:'ETH'},
-    OUTPUT: {type:'tokendb',key:'0x30a13C9941e9E6316C6494A47dcC528BAbbc5773'},
+    OUTPUT: {type:null,key:''},
     recipient:null,
     percent:null,
 

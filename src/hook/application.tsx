@@ -2,7 +2,6 @@ import { isAddress } from "@ethersproject/address";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react"
 import { useSelector } from "react-redux";
 import { addtokendb, selectcurrency, selecttoken, selectTokendb, tokenbalanceAsync, useloadWallet } from "../features/balance/balanceSlice";
-import { select ,Field,Tokenseslect, typeInput, addpercent} from "../features/pool/addliquidity"
 import { useAppDispatch, useAppSelector } from "."
 import { RootState, AppThunk, store } from '../store';
 import { parseUnits } from '@ethersproject/units'

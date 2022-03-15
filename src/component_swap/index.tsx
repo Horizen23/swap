@@ -35,20 +35,16 @@ function App() {
                 </BarButton>
             </Navbar>
             <Routes>
-                    {/* <Route   path="app/view/swap" element={<Swap />} /> */}
+                    {/* <Rou te   path="app/view/swap" element={<Swap />} /> */}
                     {/* <Route   path="app/view/liquidity" element={<Liquidity />} /> */}
                     <Route path="app/view/swap" element={<WrapSwap/>} />
                     <Route path="app/view/liquidity/">
                         <Route path="import" element={<ImportLiquidity/>} />
                         <Route  path="add/:currencykeyA/:currencykeyB" element={<AddLiquidity/>} />
                         <Route path="add/:currencykeyA" element={<AddLiquidity/>} />
-
-                        <Route path="remove/:address1/:address2" element={<RemoveLiquidity/>} />
-
+                        <Route path="remove/:currencykeyA/:currencykeyB" element={<RemoveLiquidity/>} />
                         <Route index element={<WrapLiquidity/>} />
-
                     </Route>
-
             </Routes>
             <Notification/>
            

@@ -5,6 +5,7 @@ import { RootState } from '../../store'
 import { Field, typeInput } from './actions'
 import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-dom";
 import { useParams } from 'react-router'
+import { AddLiquidity } from '../transaction/reducer'
 
 
 export function useBurnState():RootState['burn'] {
@@ -14,7 +15,7 @@ export function useBurnState():RootState['burn'] {
 export function useBurnActionHandlers(): {
   onUserInput: (field: Field, typedValue: string) => void
   onCurrencySelection: (field: Field, currency: any) => void
-
+  onAddLiquidity:(data:any)=>void
 } {
   const dispatch = useAppDispatch()
   const history =   useNavigate()
@@ -33,8 +34,17 @@ export function useBurnActionHandlers(): {
     },
     [history]
   )
+  const onAddLiquidity = useCallback(
+    (data:any) => {
+      dispatch(AddLiquidity(data))
+              // history(`/app/view/liquidity/add/0x30a13C9941e9E6316C6494A47dcC528BAbbc5773/${key}`, { replace: true })
+    },
+    [history]
+  )
+
   return {
     onCurrencySelection,
     onUserInput,
+    onAddLiquidity
   }
 }

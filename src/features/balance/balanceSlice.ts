@@ -1,6 +1,6 @@
 import { store } from './../../store/index';
 import { ethers } from 'ethers';
-
+import tokendb_ from './testnet.json'
 import { useEffect, useReducer } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from './../../hook/index';
@@ -27,80 +27,7 @@ export const tokenbalanceAsync = createAsyncThunk(
     return response;
   }
 );
-
-const tokendb: {[key:string]:TTokendb} = {
-  "0xe226f748Ed240e875E65A0ED734A3c6816D9F715":{
-    name: "Chainlink",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "LINK",
-    address: "0xe226f748Ed240e875E65A0ED734A3c6816D9F715"
-  },
-  "0xC9C7f3E664fb4d13f22E82fC8C2A96EF00fDe953": {
-    name: "DAI",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "Dai",
-    address: "0xC9C7f3E664fb4d13f22E82fC8C2A96EF00fDe953"
-  },
-  "0xa561426a037cA3a85274bDcb3DBd548E394ddDc9":{
-    name: "Fantom",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "FTM",
-    address: "0xa561426a037cA3a85274bDcb3DBd548E394ddDc9"
-  },
-  "0x30a13C9941e9E6316C6494A47dcC528BAbbc5773":{
-    name: "Polygon",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "MATIC",
-    address: "0x30a13C9941e9E6316C6494A47dcC528BAbbc5773"
-  },
-  "0x78AB57234F516c2F7552b5E68774661DAf095e11":{
-    name: "Shiba Inu",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "SHIB",
-    address: "0x78AB57234F516c2F7552b5E68774661DAf095e11"
-  },
-  "0x734dBfa9fc8356a055B21680E016f18Bf4d0dFEE":{
-    name: "Solana",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "SOL",
-    address: "0x734dBfa9fc8356a055B21680E016f18Bf4d0dFEE"
-  },
-  "0xE3248Bf9A6f699552b1f3f1f4C22501B0f4683F3":{
-    name: "Tether",
-    decimals: 18,
-    logoURI: "https://gemini.com/images/currencies/icons/default/1inch.svg",
-    chainId: 1,
-    type:'tokendb',
-    nativefor: 'ETH',
-    symbol: "USDT",
-    address: "0xE3248Bf9A6f699552b1f3f1f4C22501B0f4683F3"
-  }
-
-}
+const tokendb: {[key:string]:TTokendb} = tokendb_ as {[key:string]:TTokendb};
 const initialState: Balance = {
   currency: {
     LBTC: {
@@ -136,7 +63,7 @@ const initialState: Balance = {
       address: null,
       type: 'native',
       status: 'idle',
-      WraptoToken:"0xe8e0A5f41a4C873ed675B285aa8bc4814043aB05"
+      WraptoToken:"0xaCF08ff1cD5189f081fb23Cf0C86A3fe5663a734"
     }
   },
   token: {

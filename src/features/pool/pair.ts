@@ -10,7 +10,7 @@ export const Getpair = createAsyncThunk(
   async (generatedPairs:any, { rejectWithValue }) => {
     try {
       const addressPair = generatedPairs.map((v:any)=>v.address);
-      const data = await  MHGWallet.api.getpair(addressPair);
+      const data = await  MHGWallet.api.trackedPairs(addressPair);
         let obj:any = {}
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {

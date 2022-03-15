@@ -299,18 +299,7 @@ export  function useListToken() {
     return [value, error, isPending,inputaddress, setinputaddress]
 }
 
-export function useSwap(){
-  const transactionswap = useSelector((state:any)=>state.transaction.swap)
-  const dispatch = useAppDispatch();
-  const loadWalletHook = useloadWallet(dispatch)
-  useEffect(()=>{
-    if(transactionswap.status=='active'){
-      dispatch(tokenbalanceAsync())
-      loadWalletHook(store.getState().balance.currency)
-    }
-  },[transactionswap.status])
-  return transactionswap
-}
+
 const BtnSwap = styled.button`
     font-size: 16px;
     font-weight: 500;

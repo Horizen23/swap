@@ -9,26 +9,38 @@ export type Transactionlistener = {
   [key:string]:any
 }
 export interface Transaction {
+  status:Tokenstatus,
   readonly swap: {
-    status:Tokenstatus,
     listener:Transactionlistener
   },
-
+  readonly addliquidity: Transactionlistener,
 }
 
 const initialState: Transaction = {
+  status:'idle',
   swap:{
-    status:'idle',
     listener:{
       
     }
   },
+  addliquidity:{}
 }
 export const SwapTrade = createAsyncThunk(
   'router/SwapTrade',
   async (userData:any, { rejectWithValue }) => {
     try {
         const response:any = await MHGWallet.api.swap(userData);
+      return response;
+    } catch (err:any) {
+      return rejectWithValue(err.responseJSON)
+    }
+  }
+);
+export const AddLiquidity = createAsyncThunk(
+  'router/AddLiquidity',
+  async (userData:any, { rejectWithValue }) => {
+    try {
+        const response:any = await MHGWallet.api.addliquidity(userData);
       return response;
     } catch (err:any) {
       return rejectWithValue(err.responseJSON)
@@ -43,7 +55,7 @@ export default createReducer<Transaction>(initialState, (builder) =>
               ...meta.arg.transaction,
               status:'pendding'
         }
-        state.swap.status = 'loading'
+        state.status = 'loading'
     })
     .addCase(SwapTrade.fulfilled,( state,{payload,meta} )=>{
       state.swap.listener[meta.requestId]={
@@ -51,8 +63,19 @@ export default createReducer<Transaction>(initialState, (builder) =>
         tokenB:{...meta.arg.transaction.tokenA,amount:payload.amountOut},
         status:'active'
       }
-      
-      
-      state.swap.status = 'active'
+      state.status = 'active'
     })
+
+    .addCase(AddLiquidity.pending,( state,{ meta } )=>{
+      // state.swap.listener[meta.requestId]={
+      //        ...meta.arg.transaction,
+      //        status:'pendding'
+      //  }
+       state.status = 'loading'
+   })
+   .addCase(AddLiquidity.fulfilled,( state,{payload,meta} )=>{
+    //  state.addliquidity[meta.requestId]={
+    //  }
+     state.status = 'active'
+   })
 )

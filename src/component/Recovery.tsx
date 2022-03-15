@@ -14,7 +14,10 @@ export function Recovery() {
 function ConfirmBTCAndETH({symbol}:{symbol:string}) {
     const dispatch = useAppDispatch();
     const RecoveryWalletHook = useRecoveryWallet(dispatch)      
-    let [input, setinput] = useState<any>(["success", "biology", "believe", "dinner", "divert", "taxi", "case", "vehicle", "blur", "seed", "shell", "pony"])
+    
+    // let [input, setinput] = useState<any>(["success", "biology", "believe", "dinner", "divert", "taxi", "case", "vehicle", "blur", "seed", "shell", "pony"])
+    let [input, setinput] = useState<any>(["stairs", "donor", "match", "comic", "ride", "case", "syrup", "pulse", "story", "dwarf", "ignore", "decrease"])
+
     function onChange(index: any, value: any) {
         let newinput = [...input]
         newinput[index] = value.target.value;

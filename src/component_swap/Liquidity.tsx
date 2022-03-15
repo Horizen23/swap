@@ -28,6 +28,11 @@ export default function Liquidity() {
         {pair.status=='active'?Object.entries(pair.list).map(([key, value]:any) =>
           <ListPair key={key} pair={{key,value}}/>
         ):<LoaderSpinner style={{'margin':'0 auto'}} />}
+
+        {(pair.status=='active'&& Object.keys(pair.list).length==0)&&<div>
+                not found
+              </div> 
+         }
       </Scrolla>
       <WrapNavLink className={BtbAddLiquidity} to='import' >Import Pool</WrapNavLink>
       
@@ -91,6 +96,8 @@ function ListPair({pair:{key,value}}:any){
               </Btnaddandremove>
             </div>
       </ManagePari>}
+      {isActiveManage}
+    
     </div> 
 }
 const Btnaddandremove = styled(NavLink)`

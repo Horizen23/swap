@@ -17,11 +17,18 @@ import { useMintActionHandlers, useMintState } from '../features/mint/hooks';
 import {Field} from '../features/mint/actions'
 import Popup from './Popup';
 import { BtnSuccess } from '../hook/swap';
+import { BigNumber as BN } from "ethers";
+import { useBurnActionHandlers } from '../features/burn/hooks';
+
 export default  memo(function AddLiquidity(){
   const history = useNavigate()
-  const{ formattedAmounts,pair,isactive,tokenA,tokenB,noLiquidity,Btnstatus} = useDerivedaddliquidity()
+  const { currencykeyA, currencykeyB } = useParams();
+  const { formattedAmounts,pair,isactive,tokenA,tokenB,noLiquidity,Btnstatus} = useDerivedaddliquidity( currencykeyA, currencykeyB)
+  
+
   const {onFieldAInput,onFieldBInput,onresetMint} = useMintActionHandlers(noLiquidity)
   const wpair = new WrapStatePair(pair)
+  const {onAddLiquidity} = useBurnActionHandlers();
   useEffect(()=>{
     return onresetMint()
   },[])
@@ -38,10 +45,9 @@ export default  memo(function AddLiquidity(){
       </Row>  
       {/* {JSON.stringify(formattedAmounts)} */}
       <InputToken token={tokenA} Field={Field.INPUT} onFieldInput={onFieldAInput} amount={formattedAmounts[Field.INPUT]}/>
-      <p>balance:4565</p>
+      <p>balance:{(tokenA.balance*10**-tokenA.decimals)}</p>
       <InputToken token={tokenB} Field={Field.OUTPUT} onFieldInput={onFieldBInput} amount={formattedAmounts[Field.OUTPUT]}/> 
-      <p>balance:4565</p>
-      
+      <p>balance:{(tokenB.balance*10**-tokenB.decimals)}</p>
         <InfoInputStatus>
           <div>
               <p>{tokenA.symbol} per {tokenB.symbol}</p>
@@ -56,51 +62,38 @@ export default  memo(function AddLiquidity(){
               <p>0 %</p>
           </div>
       </InfoInputStatus>
-      {Btnstatus?Btnstatus:<BtnSuccess>Add Liquidity</BtnSuccess>}
-        {(isactive=='active'&&wpair.ispoolshare)&& (
-        <ManagePari style={{'marginTop':'20px'}}>
-              <p>Share of Pool</p>
-             <div>
-             <WNameeinfo>
-                <div className="imageInfo">
-                  <img src={wpair.token0.logoURI} />
-                  <img src={wpair.token1.logoURI} />
-                </div>
-                <div> {wpair.token0.symbol}/{wpair.token1.symbol} </div>
-              </WNameeinfo>
-                <p>51.96</p>
-             </div>
-             <div>
-                <p>Your pool share:</p>
-                <p>{wpair.getpercent()}% </p>
-             </div>
-             <div>
-                <p>{wpair.token0.symbol}:</p>
-                <p>{wpair.balanceReservesA()*1e-18}</p>
-             </div>
-             <div>
-                <p>{wpair.token1.symbol}:</p>
-                <p>{wpair.balanceReservesB()*1e-18}</p>
-             </div>
-          <div></div>
-      </ManagePari>
-      )}
+      {Btnstatus?Btnstatus:<BtnSuccess onClick={()=>{
+        const amountTokenA= BN.from(`0x${Math.trunc(formattedAmounts[Field.INPUT]*10**tokenA.decimals).toString(16)}`);
+        const amountTokenB= BN.from(`0x${Math.trunc(formattedAmounts[Field.OUTPUT]*10**tokenB.decimals).toString(16)}`);
+        onAddLiquidity({
+            tokenA:tokenA.type=='native'?tokenA.symbol:tokenA.address,
+            tokenB:tokenB.type=='native'?tokenB.symbol:tokenB.address,
+            amountTokenADesired:amountTokenA.toString(),
+            amountTokenBDesired:amountTokenB.toString(),
+            amountTokenAmin:amountTokenA.sub(amountTokenA.div('100').mul('10')).toString(),
+            amountTokenBmin:amountTokenB.sub(amountTokenB.div('100').mul('10')).toString()
+          })
+      
+      
+          // token			0x5CB1e2108366f5191650a580e6245DC52a0481e7
+          // amountTokenDesired		uint256	2882789473684210526315
+          // amountTokenMin		uint256	2565682631578947368421
+          // amountETHMin		uint256	890000000000000000
 
+      }}>Add Liquidity</BtnSuccess>}
+        {isactive=='active'&&<Mypair pair={pair}/>}
        <Popup  Active={{
         INPUT:tokenA,
         OUTPUT:tokenB,
       }}hadderCLick={(field,token)=>{
         const key1 = token.type=='native'?token.symbol:token.address;
-        let key2;
         if(field=='INPUT'){
-             key2 = tokenB.type=='native'?tokenB.symbol:tokenB.address
-             if(key1!=key2){
-               history(`/app/view/liquidity/add/${key1}/${key2}`, { replace: true })
+             if(key1!=currencykeyA&&key1!=currencykeyB){
+               history(`/app/view/liquidity/add/${key1}/${currencykeyB}`, { replace: true })
              }
         }else{
-             key2 = tokenB.type=='native'?tokenB.symbol:tokenB.address
-             if(key1!=key2){
-              history(`/app/view/liquidity/add/${key2}/${key1}`, { replace: true })
+             if(key1!=currencykeyB&&key1!=currencykeyA){
+              history(`/app/view/liquidity/add/${currencykeyA}/${key1}`, { replace: true })
             }
         }
       }}/>
@@ -109,7 +102,38 @@ export default  memo(function AddLiquidity(){
     </div>
   );
 })
+export function Mypair({pair}:any){
+  const wpair = new WrapStatePair(pair)
+  return  <>{wpair.ispoolshare&& <ManagePari style={{'marginTop':'20px'}}>
+              <TextHead>Share of Pool</TextHead>
+            <div>
+            <WNameeinfo>
+                <div className="imageInfo">
+                  <img src={wpair.token0.logoURI} />
+                  <img src={wpair.token1.logoURI} />
+                </div>
+                <div> {wpair.token0.symbol}/{wpair.token1.symbol} </div>
+              </WNameeinfo>
+                <p>{+wpair.balanceOf*1e-18}</p>
+            </div>
+            <div>
+                <p>Your pool share:</p>
+                <p>{wpair.getpercent()}% </p>
+            </div>
+            <div>
+                <p>{wpair.token0.symbol}:</p>
+                <p>{wpair.balanceReservesA()*1e-18}</p>
+            </div>
+            <div>
+                <p>{wpair.token1.symbol}:</p>
+                <p>{wpair.balanceReservesB()*1e-18}</p>
+            </div>
+          <div></div>
+      </ManagePari>
+    }
+  </> 
 
+}
 function InputToken({Field,onFieldInput,amount,token}:{Field:Field,onFieldInput:any,amount:any,token:TToken}){
   const {onUserChangpopup} = useApplicationHandlers()
   return (  
@@ -137,6 +161,17 @@ function InputToken({Field,onFieldInput,amount,token}:{Field:Field,onFieldInput:
 }
 
 
+
+const TextHead =styled.div`
+align-self: center;
+font-weight: bold;
+font-size: 18px;
+line-height: 16px;
+display: flex;
+color: #735c5c;
+margin-bottom: 11px;
+}
+`
 const InfoInputStatus =styled.div`
     display: flex;
     width: 100%;
@@ -148,6 +183,7 @@ const InfoInputStatus =styled.div`
     margin-bottom: 20px;
     flex-wrap: wrap;
 & div{
+    width: 187px;
     box-shadow: 0 0 25px 2px rgb(0 0 0 / 5%);
     background: #ffffffb3;
     padding: 10px;

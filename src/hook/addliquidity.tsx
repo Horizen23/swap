@@ -33,8 +33,8 @@ import {
 } from "./pool";
 import pair, { Getpair, WrapStatePair } from "../features/pool/pair";
 import { Field } from "../features/mint/actions";
-import { useMintState } from "../features/mint/hooks";
-import { BtnError } from "./swap";
+import { useMintActionHandlers, useMintState } from "../features/mint/hooks";
+import { BtnError, BtnSuccess } from "./swap";
 
 // export function useDerivedaddliquidity():any {
 //   const dispatch = useAppDispatch()
@@ -68,7 +68,7 @@ import { BtnError } from "./swap";
 
 // }
 
-export function useDerivedaddliquidity(): {
+export function useDerivedaddliquidity( currencykeyA:string| undefined, currencykeyB:string| undefined): {
   formattedAmounts:any
   pair:any
   isactive:any
@@ -77,42 +77,85 @@ export function useDerivedaddliquidity(): {
   noLiquidity:boolean
   Btnstatus: ReactNode | undefined
 } {
-  const dispatch = useAppDispatch();
-  const { currencykeyA, currencykeyB } = useParams();
 
   const tokenA = gettokenBykey(currencykeyA!);
   const tokenB = gettokenBykey(currencykeyB!);
-  const [isactive, pair] = usePair(tokenA, tokenB);
+  const [isactive, pair,setpair] = usePair(tokenA, tokenB);
   const Wpair = new WrapStatePair(pair);
-  const noLiquidity = Wpair.isnewpool;
+  console.log(Wpair)
+            // @ts-ignore: Unreachable code error
+
+  const noLiquidity =(pair.balanceOf=='undefined')?true:Wpair.isnewpool;
   const { independentField, typedValue, otherTypedValue } = useMintState();
   const dependentField = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT;
-  
+  const {onresetMint} = useMintActionHandlers(noLiquidity)
+  useEffect(()=>{
+    onresetMint()
+  } ,[currencykeyA,currencykeyB])
+
   const parsedAmounts= useMemo(() => {
-     const  price =( isactive!='active'||typeof Wpair.Reserves == "undefined")?'0':independentField === Field.INPUT ? Wpair.getpriceA():Wpair.getpriceB();
-      return `${+price*+typedValue}`
-  }, [independentField,typedValue,pair])
-  const formattedAmounts: any = {
+    if(tokenA&&Wpair.token0){
+      const rev =  (tokenA.address===Wpair.token0.address);
+      const  price =( isactive!='active'||typeof Wpair.Reserves == "undefined")?'0':independentField === Field.INPUT ?(rev?Wpair.getpriceA():Wpair.getpriceB()):(rev?Wpair.getpriceB():Wpair.getpriceA());
+       return typedValue?`${+price*+typedValue}`:""
+    }
+    return "";
+    }, [independentField,typedValue,pair])
+    const formattedAmounts: any = {
     [independentField]: typedValue,
     [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts ?? "",
   };
 
-
   let Btnstatus: ReactNode | undefined
 
   if (isactive !="active") {
-    Btnstatus = Btnstatus ?? <BtnError>load pair</BtnError>
+    Btnstatus = Btnstatus ?? <BtnError>load...</BtnError>
   }
 
   if (!formattedAmounts[Field.INPUT] || !formattedAmounts[Field.OUTPUT]) {
     Btnstatus = Btnstatus ?? <BtnError>Enter an amount</BtnError>
   }
+  
+  // @ts-ignore: Unreachable code error
+  if ((typedValue&&tokenB) && tokenB.balance*10**-tokenB.decimals<formattedAmounts[Field.OUTPUT]) {
+    Btnstatus = <BtnError>Insufficient {tokenB.symbol} balance</BtnError>
+  }
+  // @ts-ignore: Unreachable code error
+  if ((typedValue&&tokenA) && tokenA.balance*10**-tokenA.decimals<formattedAmounts[Field.INPUT]) {
+    Btnstatus = <BtnError>Insufficient {tokenA.symbol} balance</BtnError>
+  }
+    // @ts-ignore: Unreachable code error
+  if ((pair&&tokenA)&&(tokenB&&pair.token0)&&pair.token1) {
+    // @ts-ignore: Unreachable code error
+    const isreverse:any =tokenA.address==pair.token0.address?false:true;
+    const formattedAmountstokenindex = {
+            token0:isreverse?tokenB:tokenA,
+            token1:isreverse?tokenA:tokenB
+    }
 
-  // const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+    const  amoutA = independentField==Field.INPUT?typedValue:otherTypedValue
+    const  amoutB = independentField==Field.OUTPUT?typedValue:otherTypedValue
+    // @ts-ignore: Unreachable code error
+      if (+pair['allowance0']<+(isreverse?amoutA:amoutB)&&formattedAmountstokenindex.token0.type != 'native') {
+        Btnstatus = Btnstatus?? <BtnSuccess onClick={ ()=>{
+            // @ts-ignore: Unreachable code error
 
-  // if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-  //   error = <BtnError>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</BtnError>
-  // }
+        MHGWallet.api.erc20approve(formattedAmountstokenindex.token0.address as string).then(e=>setpair({...pair,allowance0:'999999999999999934999999999999999999'}))
+        }}
+        >appove token {formattedAmountstokenindex.token0.name}</BtnSuccess>
+      }
+            // @ts-ignore: Unreachable code error
+      if (+pair['allowance1']<+(isreverse?amoutB:amoutA)&&formattedAmountstokenindex.token1.type != 'native') {
+        Btnstatus = Btnstatus?? <BtnSuccess onClick={()=>{
+            // @ts-ignore: Unreachable code error
+
+         MHGWallet.api.erc20approve(formattedAmountstokenindex.token1.address  as string).then(e=>setpair({...pair,allowance1:'999999999999999934999999999999999999'}))
+        }}>appove token {formattedAmountstokenindex.token1.name}</BtnSuccess>
+      }
+
+  }
+    // @ts-ignore: Unreachable code error
+
 
   // if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
   //   error = <BtnError>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</BtnError>

@@ -31,8 +31,9 @@ export function getselectInfo(key:string):any{
     }
 }
 export function gettokenBykey(key:string):TToken|false{
-  const state = store.getState()
+  return useAppSelector((state:RootState) => {
   const ob:ListToken ={...state.balance.tokendb,...state.balance.token,...state.balance.currency} as ListToken;
   if(!ob[key])return false;
   return ob[key];
+  })
 }

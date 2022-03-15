@@ -17,6 +17,9 @@ import styled from "styled-components";
 import { useAllTokens } from "./token";
 import { keccak256, solidityKeccak256, solidityPack } from "ethers/lib/utils";
 import { Getpair } from "../features/pool/pair";
+import { usetransactionstatus } from "../features/transaction/hooks";
+import { useMintActionHandlers } from "../features/mint/hooks";
+import { factoryAddress, INIT_CODE_HASH } from "../config";
 
 const BASES_TO_TRACK_LIQUIDITY:string[] = [
     'ETH'
@@ -44,19 +47,43 @@ export function useTrackedTokenPairs(): any {
     },[])
 }
 export function usePair(TokenA:any,TokenB:any){
-    const [status ,setstatus] = useState<'loading'|'active'>('loading');
+    const [status ,setstatus] = useState<'idend'|'loading'|'active'>('idend');
     const [pair,setpair] = useState({})
-    const pr =  creatPaiaOffchain(TokenA,TokenB)
+    const {onresetMint} = useMintActionHandlers(undefined)
+    const txstatus = usetransactionstatus()
     useEffect(()=>{
-        setstatus('loading')
-        MHGWallet.api.getpair([pr.address]).then(vue=>{
-            setpair({...pr,...vue[pr.address]})
-            setstatus('active')
-        })
-    },[pr.address])
-    return [status,pair]
+        if(TokenA.address&&TokenB.address){
+            const pr =  creatPaiaOffchain(TokenA,TokenB)
+            if(pr){
+                setstatus('loading')
+                MHGWallet.api.allowancePari({
+                    pair:pr.address,
+                    token:getaddresstokenpair(pr)
+                }).then(vue=>{
+                    setpair({...pr,...vue})
+                    setstatus('active')
+                })
+            }
+        }
+    },[TokenA.address,TokenB.address])
+    useEffect(()=>{
+        if((TokenA.address&&TokenB.address)&&txstatus=='active'){
+            const pr =  creatPaiaOffchain(TokenA,TokenB)
+            if(pr){
+                MHGWallet.api.allowancePari({
+                    pair:pr.address,
+                    token:getaddresstokenpair(pr)
+                }).then(vue=>{
+                    setpair({...pr,...vue})
+                    onresetMint()
+                })
+            }
+        }
+    },[txstatus])
+    return [status,pair,setpair]
 }
 export function creatPaiaOffchain(tokenA:TToken,tokenB:TToken){
+
     const pair = computePairAddress(tokenA, tokenB)
     return  {
         ...pair,
@@ -69,26 +96,30 @@ export function usepair():RootState['pair']  {
     return useAppSelector((state:RootState) => state.pair)
 }
 
+function getaddresstokenpair(pair:any){
+    const token0 = pair.token0.type == 'native'?pair.token0.WraptoToken:pair.token0.address;
+    const token1 = pair.token1.type == 'native'?pair.token1.WraptoToken:pair.token1.address;
+    return {token0,token1}
+}
+
 export function computePairAddress(tokenA:any,tokenB:any) {
-    var factoryAddress = '0x9cb01917bE987d1DC3d0c70E2AFecC1B4648A268';
-    var INIT_CODE_HASH = '0x7e49d5a452686e20f3694c8b7da9ce371fddadafe40ae661631501370842bf9b';
     let  addressA,addressB;
     addressA = tokenA.address;
     addressB = tokenB.address;
     if(tokenA.type == 'native'){
        addressA = tokenA.WraptoToken;
-    }else{
+    }
+    if(tokenB.type == 'native'){
         addressB = tokenB.WraptoToken;
     }
-    var _ref2 = addressA<addressB ? [tokenA, tokenB] : [tokenB, tokenA],
-
+    var _ref2 = +addressA<+addressB ? [tokenA, tokenB] : [tokenB, tokenA],
     token0 = _ref2[0],
     token1 = _ref2[1], // does safety checks\
     sortadress = [token0.type == 'native'?token0.WraptoToken:token0.address, token1.type == 'native'?token1.WraptoToken:token1.address],
     address = getCreate2Address(
-            factoryAddress,
-            solidityKeccak256(['bytes'],[solidityPack(['address', 'address'],sortadress)]),
-            INIT_CODE_HASH
+        factoryAddress,
+        solidityKeccak256(['bytes'],[solidityPack(['address', 'address'],sortadress)]),
+        INIT_CODE_HASH
         )
     return {
         token0,
