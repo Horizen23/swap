@@ -2,7 +2,7 @@ import JSBI from 'jsbi'
 import { ReactNode, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../../hook'
 import { RootState } from '../../store'
-import { Field, typeInput } from './actions'
+import { Field, reset, typeInput } from './actions'
 import { BrowserRouter,Route ,Routes, NavLink,useNavigate } from "react-router-dom";
 import { useParams } from 'react-router'
 import { AddLiquidity } from '../transaction/reducer'
@@ -14,6 +14,9 @@ export function useBurnState():RootState['burn'] {
   
 export function useBurnActionHandlers(): {
   onUserInput: (field: Field, typedValue: string) => void
+  onResetInput: () => void
+
+  
   onCurrencySelection: (field: Field, currency: any) => void
   onAddLiquidity:(data:any)=>void
 } {
@@ -41,9 +44,16 @@ export function useBurnActionHandlers(): {
     },
     [history]
   )
+  const onResetInput = useCallback(
+      () => {
+        dispatch(reset())
+      },
+      [history]
+    )
 
   return {
     onCurrencySelection,
+    onResetInput,
     onUserInput,
     onAddLiquidity
   }

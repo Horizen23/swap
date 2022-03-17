@@ -1,11 +1,12 @@
 import { store } from './../../store/index';
 import { ethers } from 'ethers';
-import tokendb_ from './testnet.json'
+import {tokendb as tokendb_} from '../../config/index'
 import { useEffect, useReducer } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from './../../hook/index';
 import { createAsyncThunk, createSlice, PayloadAction, createAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from '../../store';
+import { WrapETH } from '../../config';
 
 export const balanceAsync = createAsyncThunk(
   'balance/fetchtoken',
@@ -63,7 +64,7 @@ const initialState: Balance = {
       address: null,
       type: 'native',
       status: 'idle',
-      WraptoToken:"0xaCF08ff1cD5189f081fb23Cf0C86A3fe5663a734"
+      WraptoToken:WrapETH
     }
   },
   token: {
@@ -71,7 +72,20 @@ const initialState: Balance = {
   },
   tokendb
 };
-
+export const useUpdateCurrency = createAsyncThunk(
+  'router/useUpdateBalaneeSwap',
+  async (userData:argtype, { rejectWithValue }) => {
+    const {balance:{tokendb,currency,token}} = store.getState();
+    try {
+      if(userData=='ETH'&&currency.ETH.address){
+        const response = await  MHGWallet.api.BalanceOf(currency.ETH.address,'ETH')
+        return response
+      } 
+    } catch (err:any) {
+      rejectWithValue({sda:"uouo"})
+    }
+  }
+);
 export const balanceSlice = createSlice({
   name: 'balance',
   initialState,
@@ -125,10 +139,13 @@ export const balanceSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(balanceAsync.pending, (state: Balance, action) => {
-        state.currency[action.meta.arg.type].status = 'loading'
+      .addCase(useUpdateCurrency.pending, (state: Balance, action) => {
+          state.currency[action.meta.arg].status = 'loading'
       })
-
+      .addCase(useUpdateCurrency.fulfilled, (state: Balance, action) => {
+          state.currency[action.meta.arg].status = 'active'
+          state.currency[action.meta.arg].balance = action.payload.data.balance
+      })
       .addCase(balanceAsync.fulfilled, (state, action) => {
         state.currency[action.meta.arg.type].status = 'active'
         state.currency[action.meta.arg.type].balance = action.payload.balance
@@ -187,6 +204,8 @@ export const useLoadToken = (dispatch: any) => () => {
   }
 
 }
+
+
 export const useUpdateBalanee = (dispatch: any) => (keyname: string) => {
   if (!keyname) {
     throw new Error("got wrong parameters for useSaveWallet");

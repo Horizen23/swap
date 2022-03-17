@@ -29,24 +29,37 @@ export function useTrackedTokenPairs(): any {
     const tokens = useAllTokens()
     const dispatch = useAppDispatch()
     const generatedPairs = useMemo(
-    () => Object.keys(tokens).flatMap((tokenKey) => {
-        return  ([...BASES_TO_TRACK_LIQUIDITY] ?? [])
-        .map((address) => {
-            if (address === tokenKey||!isAddress(tokenKey)) {
-              return null
-            } else {
-            //   return [tokens[address], tokens[tokenKey]]
-                    
-                return  creatPaiaOffchain(tokens[address], tokens[tokenKey])
-            }
+    () => {
+        const generated =  Object.keys(tokens).flatMap((tokenKey) => {
+            return  ([...BASES_TO_TRACK_LIQUIDITY] ?? [])
+            .map((address) => {
+                if (address === tokenKey||!isAddress(tokenKey)) {
+                return null
+                } else {
+                //   return [tokens[address], tokens[tokenKey]]
+                    return  creatPaiaOffchain(tokens[address], tokens[tokenKey])
+                }
+            })
+            .filter((p): p is any => p !== null)
         })
-        .filter((p): p is any => p !== null)
-    }),[tokens])
+        const listpair:any =  JSON.parse(localStorage.getItem("listpair") as string)||{};
+        for (const property in listpair) {
+            const {address0,address1} = listpair[property];
+            console.log(address0)
+                if(tokens[address0]&&tokens[address1]){
+                    generated.push(creatPaiaOffchain(tokens[address0], tokens[address1]))
+                }
+        }
+        return generated;
+},[tokens])
+   
+      
+    
     useEffect(()=>{
         dispatch(Getpair(generatedPairs))
     },[])
 }
-export function usePair(TokenA:any,TokenB:any){
+export function usePair(TokenA:any,TokenB:any):any{
     const [status ,setstatus] = useState<'idend'|'loading'|'active'>('idend');
     const [pair,setpair] = useState({})
     const {onresetMint} = useMintActionHandlers(undefined)
@@ -70,6 +83,8 @@ export function usePair(TokenA:any,TokenB:any){
         if((TokenA.address&&TokenB.address)&&txstatus=='active'){
             const pr =  creatPaiaOffchain(TokenA,TokenB)
             if(pr){
+                console.log('update')
+                
                 MHGWallet.api.allowancePari({
                     pair:pr.address,
                     token:getaddresstokenpair(pr)

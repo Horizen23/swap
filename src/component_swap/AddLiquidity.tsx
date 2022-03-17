@@ -132,7 +132,6 @@ export function Mypair({pair}:any){
       </ManagePari>
     }
   </> 
-
 }
 function InputToken({Field,onFieldInput,amount,token}:{Field:Field,onFieldInput:any,amount:any,token:TToken}){
   const {onUserChangpopup} = useApplicationHandlers()

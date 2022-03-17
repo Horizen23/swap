@@ -19,6 +19,7 @@ import { useMatch } from "react-router";
 import { useApplicationHandlers } from "../hook/application";
 import { activePoppup } from "../features/page/pageSlice";
 import Popup from "./Popup";
+import { useBalanceHandlers } from "../features/balance/hooks";
 
 export default function Swap() {
   const [percent, setpercent] = useState(0);
@@ -26,7 +27,8 @@ export default function Swap() {
   const TokenINPUT = useTokenActive(Field.INPUT)
   const TokenOUTPUT = useTokenActive(Field.OUTPUT)
   const swappp = useSwapState();
-  const {ButtonSwap,router,onUserRoutingAPITrade} = useDerivedSwapInfo()
+  const {ButtonSwap,router,onUserRoutingAPITrade,features} = useDerivedSwapInfo()
+  const {onUpdateBalanceSwap} = useBalanceHandlers()
   return (
     <Container className="col-lg-4 ">
       <Popup  Active={{
@@ -35,8 +37,9 @@ export default function Swap() {
       }}hadderCLick={(field,token)=>{
           onCurrencySelection(field,token)
       }}/>
-      <span className="text_head">Swap Token test</span>
-      <TokenInput Field={Field.INPUT}  setpercent={setpercent}/>
+      <span className="text_head" onClick={()=>onUpdateBalanceSwap('ETH')}>Swap Token test {features}</span>
+      
+      <TokenInput Field={Field.INPUT}  features={features}/>
         <Balance>Balance:  {(Math.pow(10, -TokenINPUT.decimals) * (TokenINPUT.balance as number)).toFixed(4) }</Balance>
       <WrapBtnpercent>
         <div className="buttons flex">
@@ -47,7 +50,7 @@ export default function Swap() {
         </div>
       </WrapBtnpercent>
      <SvgLogo onClick={onSwitchTokens}/>
-      <TokenInput Field={Field.OUTPUT} setpercent={setpercent}/>
+      <TokenInput Field={Field.OUTPUT} features={features}/>
       <Balance>Balance:  {(Math.pow(10, -TokenOUTPUT.decimals) * (TokenOUTPUT.balance as number)).toFixed(4) }</Balance>
 
       <SwapDetail/>
@@ -94,12 +97,13 @@ function BtnPercent({percent:percentSTR,onUserInputpercent}: {percent: number,on
   );
 }
 
-function TokenInput({Field,setpercent}:{Field:Field,setpercent:any}) {
+function TokenInput({Field,features}:{Field:Field,features:string}) {
   const token = useTokenActive(Field)
   const { onUserInput }= useSwapActionHandlers()
   const {typedValue,independentField} = useSwapState()
   const {router:{amount,quote},status}= useRouterState()
   const {onUserChangpopup} = useApplicationHandlers()
+  const isdeandwd = features!='deposit'&&features!="withdraw"?false:typedValue;
 
   return (  
     <WrapTokenInput className={independentField!==Field?status:''}>
@@ -117,7 +121,7 @@ function TokenInput({Field,setpercent}:{Field:Field,setpercent:any}) {
         ? */}
         <InputAmount
           placeholder="0.00"
-          value={independentField==Field?typedValue:(quote?
+          value={isdeandwd?isdeandwd:independentField==Field?typedValue:(quote?
            (status=='active'?(+quote)*1e-18:'')
             :'')}
           pattern="^-?[0-9]\d*\.?\d*$"

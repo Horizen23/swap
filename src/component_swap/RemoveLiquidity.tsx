@@ -5,7 +5,7 @@ import * as ReactDOM from "react-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { BrowserRouter, Route, Routes, NavLink, Outlet } from "react-router-dom";
-import { useDerivedremoveLiquidity } from '../hook/RemoveLiquidity';
+import { useDerivedremoveLiquidity, useremoveLiquidityHandlers } from '../hook/RemoveLiquidity';
 import { useParams } from 'react-router';
 import { WrapStatePair } from '../features/pool/pair';
 import { Field } from '../features/burn/actions';
@@ -32,6 +32,7 @@ export default function RemoveLiquidity() {
   if(pair){
     wpair  = new WrapStatePair(pair)
   }
+  const {onRomoveLiquidityAsync}  = useremoveLiquidityHandlers()
   // console.log(wpair)
   return (
     <div className="row justify-content-md-center mt-4">
@@ -69,14 +70,14 @@ export default function RemoveLiquidity() {
         <Prices>
           <Dprice>
             <div>
-              <p>{wpair?.balanceReservesA()*10**(-wpair?.token0.decimals)*typedValue/100}</p>
+              <p>{(wpair?.balanceReservesA()*10**(-wpair?.token0.decimals)*typedValue/100)}</p>
 
               <div>
                 {wpair?.token0.symbol}
               </div>
             </div>
             <div>
-              <p>{wpair?.balanceReservesB()*10**(-wpair?.token1.decimals)*typedValue/100}</p>
+              <p>{(wpair?.balanceReservesB()*10**(-wpair?.token1.decimals)*typedValue/100)}</p>
               <p>{wpair?.token1.symbol}</p>
             </div>
           </Dprice>
@@ -98,15 +99,11 @@ export default function RemoveLiquidity() {
           </Price>
         </Pricetext>
         <Approve>
-          <Btnappove>Approve</Btnappove>
-          <Btnappove onClick={ async()=>{
-              const lp = BigNumber.from(wpair.balanceOf)
-              // 200/100*(100-(1))
-            const res = await MHGWallet.api.permitapprove({
-              pairAddress:wpair.address,
-              lpvalue:`${lp.div('100').mul(`${typedValue}`).toString()}`,
-              tokenAddress:wpair.token0.type=='native'?wpair.token1.address:wpair.token0.address
-            })
+          {/* <Btnappove>Approve</Btnappove> */}
+          <Btnappove className={typedValue>0?'active':''} onClick={ async()=>{
+            if(typedValue>0){
+              onRomoveLiquidityAsync({typedValue,wpair})
+            }
           }}>Enter an amount</Btnappove>
           {/* Remove */}
         </Approve>
@@ -194,7 +191,7 @@ color: #4A4A4A;
 font-weight: 500;
 font-size: 15px;
  transition-duration: 0.4s;
- :hover {
+ &.active {
   background-color: #C9F9D3; /* Green */
   color: #6E6060;
 }

@@ -1,4 +1,5 @@
 
+import {tokendb as tokendb_,factory,weth} from './testnet.json'
 function getParameterByName(name:string) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -6,7 +7,12 @@ function getParameterByName(name:string) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 export const INIT_CODE_HASH =  "0x7e49d5a452686e20f3694c8b7da9ce371fddadafe40ae661631501370842bf9b"
-export const factoryAddress =  "0x38B67f3239ea7ADe998DDCA6cf80204E4954B089"
+export const factoryAddress =  factory
+export const WrapETH =  weth
+export const tokendb =  tokendb_
+
+
+
  function fnconfig(symbol:string,callback:any){   
     // theme overrides
     var overrides = {};

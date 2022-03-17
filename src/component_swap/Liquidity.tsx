@@ -34,7 +34,7 @@ export default function Liquidity() {
               </div> 
          }
       </Scrolla>
-      <WrapNavLink className={BtbAddLiquidity} to='import' >Import Pool</WrapNavLink>
+      <WrapNavLink className={BtbAddLiquidity} to='import/ETH' >Import Pool</WrapNavLink>
       
     </Container>
   );

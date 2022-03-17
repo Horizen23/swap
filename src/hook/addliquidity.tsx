@@ -35,6 +35,8 @@ import pair, { Getpair, WrapStatePair } from "../features/pool/pair";
 import { Field } from "../features/mint/actions";
 import { useMintActionHandlers, useMintState } from "../features/mint/hooks";
 import { BtnError, BtnSuccess } from "./swap";
+import { useBalanceHandlers } from "../features/balance/hooks";
+import { usetransactionstatus, useUpdateActiveStatus } from "../features/transaction/hooks";
 
 // export function useDerivedaddliquidity():any {
 //   const dispatch = useAppDispatch()
@@ -82,13 +84,14 @@ export function useDerivedaddliquidity( currencykeyA:string| undefined, currency
   const tokenB = gettokenBykey(currencykeyB!);
   const [isactive, pair,setpair] = usePair(tokenA, tokenB);
   const Wpair = new WrapStatePair(pair);
-  console.log(Wpair)
             // @ts-ignore: Unreachable code error
 
   const noLiquidity =(pair.balanceOf=='undefined')?true:Wpair.isnewpool;
   const { independentField, typedValue, otherTypedValue } = useMintState();
   const dependentField = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT;
   const {onresetMint} = useMintActionHandlers(noLiquidity)
+  const { onUpdateBalanceSwap } = useBalanceHandlers()
+  useUpdateActiveStatus(usetransactionstatus(),()=>onUpdateBalanceSwap('ETH'))
   useEffect(()=>{
     onresetMint()
   } ,[currencykeyA,currencykeyB])
@@ -144,13 +147,15 @@ export function useDerivedaddliquidity( currencykeyA:string| undefined, currency
         }}
         >appove token {formattedAmountstokenindex.token0.name}</BtnSuccess>
       }
-            // @ts-ignore: Unreachable code error
-      if (+pair['allowance1']<+(isreverse?amoutB:amoutA)&&formattedAmountstokenindex.token1.type != 'native') {
+      // console.log(pair)
+      // @ts-ignore: Unreachable code error
+      if (+pair['allowance1']<+(isreverse?amoutB:amoutA)) {
+        console.log(5555)
         Btnstatus = Btnstatus?? <BtnSuccess onClick={()=>{
             // @ts-ignore: Unreachable code error
 
-         MHGWallet.api.erc20approve(formattedAmountstokenindex.token1.address  as string).then(e=>setpair({...pair,allowance1:'999999999999999934999999999999999999'}))
-        }}>appove token {formattedAmountstokenindex.token1.name}</BtnSuccess>
+         MHGWallet.api.erc20approve(formattedAmountstokenindex.token0.address  as string).then(e=>setpair({...pair,allowance1:'999999999999999934999999999999999999'}))
+        }}>appove token {formattedAmountstokenindex.token0.name}</BtnSuccess>
       }
 
   }

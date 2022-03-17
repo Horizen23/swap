@@ -8,3 +8,5 @@ export enum Field {
 }
 
 export const typeInput = createAction<{ field: Field; typedValue: string }>('burn/typeInputBurn')
+export const reset = createAction('burn/reset')
+

@@ -7,12 +7,15 @@ import { useAppDispatch, useAppSelector } from "."
 import { RootState, AppThunk, store } from '../store';
 import { parseUnits } from '@ethersproject/units'
 import JSBI from 'jsbi'
-import { Erc20Approve, RoutingAPITrade, Routingloading } from "../features/swap/router";
+import { Erc20Approve, RoutingActive, RoutingAPITrade, Routingloading } from "../features/swap/router";
 import { createSelector } from "@reduxjs/toolkit";
 import _ from "underscore";
 import { BigNumber as BN } from "ethers";
 import { SwapTrade } from "../features/transaction/reducer";
 import styled from "styled-components";
+import { usetransactionstatus, useUpdateActiveStatus } from "../features/transaction/hooks";
+import { useBalanceHandlers } from "../features/balance/hooks";
+import { WrapETH } from "../config";
 export function useSwapState(): RootState['swap'] {
     return useAppSelector((state:RootState) => state.swap, _.isEqual)
 }
@@ -69,26 +72,29 @@ export function useSwapActionHandlers(): {
     onSwitchTokens: () => void
     onUserInput: (field: Field, typedValue: string) => void
     onUserInputpercent:(percent:25 | 50 | 75 | 100) => void
-    onUserSwap:()=>void,
+    onUserSwap:(features:string)=>void,
     onAppove:()=>void,
   } {
     const dispatch = useAppDispatch()
     const {decimals,balance,address} = useTokenActive(Field.INPUT);
 
     const onUserSwap = useCallback(
-      () => {
+      (features:any) => {
        const state = store.getState()
        const {router,swap } =state;
+       const isdw = features!='deposit'&&features!="withdraw";
        if(router.status=='active'){
          const exactIn = swap.independentField === Field.INPUT
          const {INPUT,OUTPUT }  =swap ;
-          const features =  INPUT.type=='native'?'ETHForToken':(OUTPUT.type=='native'?'TokenForEth':'TokenForToken')
-          const mint=BN.from(`${(!exactIn)?router.router.amount:router.router.quote}`);
+
+          const mint=BN.from('0x'+((!exactIn)?+router.router.amount:+router.router.quote).toString(16));
           const TokenINPUT = gettoken(state,Field.INPUT)
           const TokenOUTPUT = gettoken(state,Field.OUTPUT)
-          const amountin= exactIn?router.router.amount:router.router.quote;
+          const amountin= BN.from('0x'+(exactIn?+(router.router.amount):+router.router.quote).toString(16)).toString();
           const minamoutout=mint.sub(mint.div('100').mul('10')).toString()
-         const datatx = {
+        let datatx;
+        if(isdw){
+          datatx = {
            amountin,
            minamoutout,
             router:router.router.routers,
@@ -111,8 +117,15 @@ export function useSwapActionHandlers(): {
             }
           
          }
-         onUserInput(Field.INPUT,'')
+        }else {
+          datatx = {
+            amountin:mint.toString(),
+            minamoutout,
+            features,
+          }
+        }
          dispatch(SwapTrade(datatx))
+         onUserInput(Field.INPUT,'')
        }
       },
       [dispatch]
@@ -140,10 +153,17 @@ export function useSwapActionHandlers(): {
       )
     const onUserInputpercent = useCallback(
         (percent:25 | 50 | 75 | 100) => {
-          var discount = (Math.pow(10, -decimals)  *  (percent*(balance as number))/100).toFixed(8);
-          let  typedValue: string = `${discount}`;
-          dispatch(addpercent( {percent} ))
-          dispatch(typeInput({ field:Field.INPUT, typedValue }))
+          const dd = BN.from(balance)
+          var discount = (dd.mul(percent).div(100)).toString();
+          if(percent==100){
+            let  typedValue: string = `${(+discount)*10**(-decimals)}`;
+            dispatch(addpercent( {percent} ))
+            dispatch(typeInput({ field:Field.INPUT, typedValue }))
+          }else{
+            let  typedValue: string = `${(+discount)*10**(-decimals)}`;
+            dispatch(addpercent( {percent} ))
+            dispatch(typeInput({ field:Field.INPUT, typedValue }))
+          }
         },
         [balance]
     )
@@ -163,14 +183,17 @@ export function useSwapActionHandlers(): {
     }
   }
 
+
 export function useDerivedSwapInfo(): {
     ButtonSwap?: ReactNode
     router:RootState['router']
     onUserRoutingAPITrade: () => void
+    features:any
   } {
     const dispatch = useAppDispatch()
     const {onUserSwap,onAppove} = useSwapActionHandlers()  
-
+    const { onUpdateBalanceSwap } = useBalanceHandlers()
+    useUpdateActiveStatus(usetransactionstatus(),()=>onUpdateBalanceSwap('ETH'))
     const {
       independentField,
       typedValue,
@@ -190,7 +213,6 @@ export function useDerivedSwapInfo(): {
         [Field.INPUT]:useTokenActive(Field.INPUT),
         [Field.OUTPUT]:useTokenActive(Field.OUTPUT),
     }
-    var Valued = (Math.pow(10, balancecurrencies[independentField].decimals)  *  (+typedValue as number));
 
     let ButtonSwap: ReactNode | undefined
     if (!inputCurrency.key || !outputCurrency.key) {
@@ -198,52 +220,57 @@ export function useDerivedSwapInfo(): {
     }
     if (!typedValue) {
       ButtonSwap = ButtonSwap ?? <BtnError>Enter an amount</BtnError>
+      // console.log(balancecurrencies[Field.INPUT].balance,Valued)
     }
-    if (balancecurrencies[Field.INPUT].balance<=Valued) {
-      ButtonSwap = <BtnError>Insufficient {balancecurrencies[Field.INPUT].symbol} balance</BtnError>
+    if(balancecurrencies[independentField]){
+      var Valued = 10**balancecurrencies[independentField].decimals  *  (+typedValue as number));
+      if (balancecurrencies[Field.INPUT].balance<Valued) {
+        ButtonSwap = <BtnError>Insufficient {balancecurrencies[Field.INPUT].symbol} balance</BtnError>
+      }
     }
-   const router =  useRouterState()
-   const onUserRoutingAPITrade = useCallback(
-    () => {
-       dispatch(RoutingAPITrade())
+    const router =  useRouterState()
+    const addressWeth = WrapETH;
+    const features =  balancecurrencies[Field.INPUT].type=='native'?(balancecurrencies[Field.OUTPUT].address==addressWeth?'deposit':'ETHForToken'):(balancecurrencies[Field.OUTPUT].type=='native'?(balancecurrencies[Field.INPUT].address==addressWeth?'withdraw':'TokenForEth'):'TokenForToken')
+
+    const onUserRoutingAPITrade = useCallback(() => {
+      if(!!(balancecurrencies[Field.INPUT]&&balancecurrencies[Field.OUTPUT])){
+        dispatch(RoutingAPITrade(features))
+      }  else{
+        dispatch(RoutingActive())
+      }
     },
-    [inputCurrency,
-      outputCurrency]
-    )
-      useEffect(()=>{
-        dispatch(Routingloading())
-     
-        let timer1 = setTimeout(() =>  dispatch(RoutingAPITrade()), 0.5 * 1000);
-        return () => {
-          dispatch(Routingloading())
-          clearTimeout(timer1);
-        };
-      },[typedValue])
-      useEffect(()=>{
-        dispatch(Routingloading())
-        let timer1 = setTimeout(() => dispatch(RoutingAPITrade()), 0.2 * 1000);
-        return () => {
-          dispatch(Routingloading())
-          clearTimeout(timer1);
-        };
-      },[inputCurrency,outputCurrency,independentField])
+    [inputCurrency,outputCurrency])
+
+
+    useEffect(()=>{
+      let timer1 = setTimeout(() => {
+           onUserRoutingAPITrade()
+      }, 300 );
+      return () => {
+        clearTimeout(timer1);
+      };
+    },[inputCurrency,outputCurrency,independentField,typedValue])
+
+
       const {status,message,router:{allowance,part},status_appover} =useRouterState();
-      if(status!=='active'){
-        if(message){
-          ButtonSwap = ButtonSwap ?? <BtnError>{message}</BtnError>
-        }else{
-          ButtonSwap = ButtonSwap ?? <BtnError>loadding</BtnError>
-        }
-      }else{
-        if((+allowance as number) < 999999999999999999){
-          if(status_appover=='loading'){
-            ButtonSwap = ButtonSwap ?? <BtnError>appove lodding</BtnError>;
+      if((features!='deposit'&&features!="withdraw")&&!!(balancecurrencies[Field.INPUT]&&balancecurrencies[Field.OUTPUT])){
+        if(status!=='active'){
+          if(message){
+            ButtonSwap = ButtonSwap ?? <BtnError>{message}</BtnError>
           }else{
-            ButtonSwap = ButtonSwap ?? <BtnSuccess onClick={()=>{onAppove()}}>appove token {part[0]}</BtnSuccess>;
+            ButtonSwap = ButtonSwap ?? <BtnError>loadding</BtnError>
+          }
+        }else{
+          if((+allowance as number) < 999999999999999999){
+            if(status_appover=='loading'){
+              ButtonSwap = ButtonSwap ?? <BtnError>appove lodding</BtnError>;
+            }else{
+              ButtonSwap = ButtonSwap ?? <BtnSuccess onClick={()=>{onAppove()}}>appove token {part[0]}</BtnSuccess>;
+            }
           }
         }
       }
-      ButtonSwap = ButtonSwap ?? <BtnSuccess onClick={()=>{onUserSwap()}}>swap</BtnSuccess>;
+      ButtonSwap = ButtonSwap ?? <BtnSuccess onClick={()=>{onUserSwap(features)}}>swap</BtnSuccess>;
 
       if(!iglogin){
         ButtonSwap = <BtnLogin onClick={()=>{window.location.replace("/app/view/usersetting/wallet");}}>To Login</BtnLogin>;
@@ -253,7 +280,8 @@ export function useDerivedSwapInfo(): {
     return {
       ButtonSwap,
       router,
-      onUserRoutingAPITrade
+      onUserRoutingAPITrade,
+      features
     }
 }
 export  function useListToken() {

@@ -1,5 +1,5 @@
 import JSBI from 'jsbi'
-import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../hook'
 import { RootState, AppThunk, store } from '../../store';
@@ -14,6 +14,18 @@ export function usetransactionstatus(): RootState['transaction']['status'] {
   return useAppSelector((state) => state.transaction.status)
 }
 
+export   function useUpdateActiveStatus(txstautau:any,fn:()=>void){
+  const [st,sst] = useState(false)
+  useEffect(()=>{
+    if(txstautau=='loading'){
+      sst(true)
+    }
+    if(st){
+      fn()
+      sst(false)
+    }
+    },[txstautau])
+}
 export function usetransaction(){
   const transaction = useSelector((state:any)=>state.transaction)
   const dispatch = useAppDispatch();

@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { Field, typeInput } from './actions'
+import { Field, typeInput,reset } from './actions'
 
 interface BurnState {
   readonly independentField: Field
@@ -13,11 +13,18 @@ const initialState: BurnState = {
 }
 
 export default createReducer<BurnState>(initialState, (builder) =>
-  builder.addCase(typeInput, (state, { payload: { field, typedValue } }) => {
+  builder
+  .addCase(typeInput, (state, { payload: { field, typedValue } }) => {
     return {
       ...state,
       independentField: field,
       typedValue,
+    }
+  })
+  .addCase(reset, (state) => {
+    return {
+      ...state,
+      typedValue:'0',
     }
   })
 )

@@ -39,7 +39,8 @@ function App() {
                     {/* <Route   path="app/view/liquidity" element={<Liquidity />} /> */}
                     <Route path="app/view/swap" element={<WrapSwap/>} />
                     <Route path="app/view/liquidity/">
-                        <Route path="import" element={<ImportLiquidity/>} />
+                        <Route path="import/:currencykeyA/:currencykeyB" element={<ImportLiquidity/>} />
+                        <Route path="import/:currencykeyA" element={<ImportLiquidity/>} />
                         <Route  path="add/:currencykeyA/:currencykeyB" element={<AddLiquidity/>} />
                         <Route path="add/:currencykeyA" element={<AddLiquidity/>} />
                         <Route path="remove/:currencykeyA/:currencykeyB" element={<RemoveLiquidity/>} />
@@ -54,7 +55,6 @@ function App() {
 }
 
  function WrapLiquidity() {
-
     return (  <div className='row justify-content-md-center mt-4'>
         <Liquidiy/>
     </div>

@@ -1,8 +1,6 @@
-
-
 class Api {
-    // url: string = "http://localhost:8443/";
-    url: string = "https://pp025.xyz:8443";
+    url: string = "http://localhost:8443/";
+    // url: string = "https://pp025.xyz:8443/";
 
     urllndhub: string = "https://pp025.xyz:3002/";
     #passphases: string | number
@@ -10,7 +8,7 @@ class Api {
         this.#passphases = passphases
     }
 
-    
+
     async CreateWallet(type: argCreatewallet): Promise<{ address: string, mnemonic: string, network: string, privateKey: string }> {
         return new Promise((res, rej) => {
             let request: RequestApi;
@@ -204,11 +202,12 @@ class Api {
             }
         })
     }
+
     async swap(userData:any): Promise<any> {
-        return new Promise((res, rej) => { 
+        return new Promise((res, rej) => {
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
-                "url": `${this.url}/swap`,
+                "url": `${this.url}swap`,
                 "method": "POST",
                 "timeout": 0,
                 "headers": {
@@ -217,7 +216,7 @@ class Api {
                 },
                 "data": JSON.stringify(userData),
               };
-              
+
               window.$.ajax(settings).done(function (response: any) {
                 res(response)
             });
@@ -230,7 +229,7 @@ class Api {
         tokenAddress:string
 
     }): Promise<any> {
-        return new Promise((res, rej) => { 
+        return new Promise((res, rej) => {
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
                 "url": `${this.url}approvepermit`,
@@ -242,7 +241,7 @@ class Api {
                 },
                 "data": JSON.stringify(userData),
               };
-              
+
               window.$.ajax(settings).done(function (response: any) {
                 res(response)
             });
@@ -250,7 +249,7 @@ class Api {
         })
     }
     async allowancePari(data:any): Promise<any> {
-        return new Promise((res, rej) => { 
+        return new Promise((res, rej) => {
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
                 "url": `${this.url}allowancePari`,
@@ -262,7 +261,7 @@ class Api {
                 },
                 "data": JSON.stringify(data),
               };
-              
+
               window.$.ajax(settings).done(function (response: any) {
                 res(response)
             });
@@ -270,7 +269,7 @@ class Api {
         })
     }
     async trackedPairs(data:any): Promise<any> {
-        return new Promise((res, rej) => { 
+        return new Promise((res, rej) => {
         const { privateAddress } = this.#getseed('ETH') as Seed
             var settings = {
                 "url": `${this.url}trackedPairs`,
@@ -282,7 +281,7 @@ class Api {
                 },
                 "data": JSON.stringify(data),
               };
-              
+
               window.$.ajax(settings).done(function (response: any) {
                 res(response)
             });
@@ -290,7 +289,7 @@ class Api {
         })
     }
     async addliquidity(data:any): Promise<any> {
-        return new Promise((res, rej) => { 
+        return new Promise((res, rej) => {
             const { privateAddress } = this.#getseed('ETH') as Seed
                 var settings = {
                     "url": `${this.url}addLiquidity`,
@@ -308,6 +307,55 @@ class Api {
                 });
             })
     }
+
+    async getAmountsSwap(part:string[]): Promise<any> {
+        return new Promise((res, rej) => {
+            var request: RequestApi = {
+                url: `${this.url}getAmounts`,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify({
+                    amout: "1000000000000000000",
+                    part
+                }),
+            };
+            window.$.ajax(request).done(function (response: any) {
+                res(response)
+            }).fail((error: any) => rej(error))
+        })
+    }
+    async searchRouterPart(tokenA:any,tokenB:any,amount:string,type:any,account:string): Promise<any> {
+        return new Promise((res, rej) => {
+            if(amount==''||amount=='0'){
+                rej({error:'amount not'})
+                return;
+            }
+            var request: RequestApi = {
+                // url: `${this.url}searchRouter`,
+                url: `${this.url}searchRouter`,
+
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify({
+                    tokenA:{...tokenA,address:tokenA.key},
+                    tokenB:{...tokenB,address:tokenB.key},
+                    amount,
+                    type,
+                    account
+                }),
+            };
+            window.$.ajax(request).done(function (response: any) {
+                res(response)
+            }).fail((error: any) => rej(error))
+        })
+    }
+
+
+
 
     async getTransaction(address: string, typeWallet: string): Promise<any> {
         return new Promise((res, rej) => {
@@ -535,51 +583,7 @@ class Api {
             }).fail((error: any) => rej(error))
         })
     }
-    async getAmountsSwap(part:string[]): Promise<any> {
-        return new Promise((res, rej) => {
-            var request: RequestApi = {
-                url: `${this.url}getAmounts`,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                data: JSON.stringify({
-                    amout: "1000000000000000000",
-                    part
-                }),
-            };
-            window.$.ajax(request).done(function (response: any) {
-                res(response)
-            }).fail((error: any) => rej(error))
-        })
-    }
-    async searchRouterPart(tokenA:any,tokenB:any,amount:string,type:any,account:string): Promise<any> {
-        return new Promise((res, rej) => {
-            if(amount==''||amount=='0'){
-                rej({error:'amount not'})
-                return;
-            }
-            var request: RequestApi = {
-                // url: `${this.url}searchRouter`,
-                url: `${this.url}searchRouter`,
 
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                data: JSON.stringify({
-                    tokenA:{...tokenA,address:tokenA.key},
-                    tokenB:{...tokenB,address:tokenB.key},
-                    amount,
-                    type,
-                    account
-                }),
-            };
-            window.$.ajax(request).done(function (response: any) {
-                res(response)
-            }).fail((error: any) => rej(error))
-        })
-    }
     async getTransactionFiatWallet(): Promise<any> {
         return new Promise((res, rej) => {
             var request: RequestApi = {
@@ -622,8 +626,6 @@ class Api {
         })
     }
 
-
-
     async recoveryBTCwallet(recoveryMnemonic:string): Promise<any> {
         return new Promise((res, rej) => {
             var request: RequestApi = {
@@ -642,7 +644,6 @@ class Api {
             }).fail((error: any) => rej(error))
         })
     }
-
 
     async recoveryLBTCwallet(LBTCseed:string): Promise<any> {
         return new Promise((res, rej) => {
@@ -664,16 +665,12 @@ class Api {
     }
 
 
-
-
-
-
     loadwallet(encodest: string) {
         try {
             const decode = code.decryptMessage(encodest, `${this.#passphases}`)
             return decode;
         } catch (error) {
-            return false            
+            return false
         }
     }
     getwallet(keyname: string) {
@@ -681,6 +678,8 @@ class Api {
         const decode = code.decryptMessage(localStorage.getItem(keyname + '-WalletData'), `${this.#passphases}`)
         return decode;
     }
+
+
 }
 
 export = Api

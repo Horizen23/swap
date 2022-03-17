@@ -7,21 +7,33 @@ import { selectSwap, switchswap ,Field,Tokenseslect, typeInput, addpercent} from
 
 export const RoutingAPITrade = createAsyncThunk(
   'router/RoutingAPITrade',
-  async (userData, { rejectWithValue }) => {
-    const State = store.getState();
-    const {swap:{INPUT,OUTPUT,typedValue,independentField},balance:{currency:{ETH:{address}}}} = State;
+  async (features:any, { rejectWithValue }) => {
+    const State:any = store.getState();
+    const {swap:{INPUT,OUTPUT,typedValue,independentField},balance:{currency:{ETH:{address,WraptoToken,decimals:ethdecimals}}}} = State;
     const type =  independentField==='INPUT'?'exactIn':'exactOut'
     const {decimals} = gettoken(State,Field.INPUT)
     // let decimalss = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))
     // let amount = JSBI.lessThanOrEqual(decimalss, MaxUint256)?JSBI.BigInt((+typedValue as number)*1e+18):0
     // let amount = JSBI.multiply(JSBI.BigInt((+typedValue as number)),decimalss)
-    let amount = JSBI.BigInt((+typedValue)*(10**decimals))
-    try {
-        const response:Routerstate['router'] = await MHGWallet.api.searchRouterPart(INPUT, OUTPUT,amount.toString(),type,address as string);
-      return response;
-    } catch (err:any) {
-      return rejectWithValue(err.responseJSON)
+    if(features!='deposit'&&features!="withdraw"){
+      let amount = JSBI.BigInt((+typedValue)*(10**decimals))
+      try {
+          const response:Routerstate['router'] = await MHGWallet.api.searchRouterPart(INPUT, OUTPUT,amount.toString(),type,address as string);
+        return response;
+      } catch (err:any) {
+        return rejectWithValue(err.responseJSON)
+      }
+    }else{
+      let aa:any = typedValue;
+      return {
+        amount:(aa*10**ethdecimals).toString(),
+        quote:(aa*10**ethdecimals).toString(),
+        routers:[],
+        allowance:'',
+        part:[],
+      }
     }
+
   }
 );
 
@@ -38,6 +50,8 @@ export const Erc20Approve = createAsyncThunk(
       return rejectWithValue(err.responseJSON)
     }
   }
+
+
 );
 
 
@@ -69,6 +83,8 @@ const initialState: Routerstate = {
 }
 
 export const Routingloading = createAction('router/loading');
+export const RoutingActive = createAction('router/RoutingActive');
+
 export default createReducer<Routerstate>(initialState, (builder) =>
     builder
     .addCase(Routingloading,( state:any, action)=>{
@@ -77,6 +93,13 @@ export default createReducer<Routerstate>(initialState, (builder) =>
             message:'',
             status:'loading',
         }
+    })  
+    .addCase(RoutingActive,( state:any, action)=>{
+      return {
+          ...state,
+          message:'',
+          status:'active',
+      }
     })
     .addCase(RoutingAPITrade.pending,( state:any, action)=>{
        return {
@@ -85,14 +108,19 @@ export default createReducer<Routerstate>(initialState, (builder) =>
             status:'loading',
        }
     })
-    .addCase(RoutingAPITrade.fulfilled,( state:any, {payload:router})=>{
-        return {
-            router,
-            message:'',
-            status:'active',
-            status_appover:'idle',
-            
-        }
+    .addCase(RoutingAPITrade.fulfilled,( state:any,action:any)=>{
+      console.log(action.meta.arg!='deposit'&&action.meta.arg!="withdraw")
+      if(action.meta.arg!='deposit'&&action.meta.arg!="withdraw"){
+          return {
+              router:action.payload,
+              message:'',
+              status:'active',
+              status_appover:'idle',
+          }
+      }else{
+        state.status = 'active'
+        state.router = action.payload
+      }
      })  
      .addCase(RoutingAPITrade.rejected,( state:any, {payload}:any)=>{
           state.router={

@@ -4,13 +4,32 @@ import { Provider, useSelector } from "react-redux";
 import * as ReactDOM from "react-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { BrowserRouter,Route ,Routes, NavLink,Outlet} from "react-router-dom";
+import { BrowserRouter,Route ,Routes, NavLink,useNavigate} from "react-router-dom";
 import { useApplicationHandlers } from '../hook/application';
 import { activePoppup } from '../features/page/pageSlice';
 import { Field } from '../features/swap/reducer';
+import { useParams } from 'react-router';
+import { gettokenBykey } from '../hook/token';
+import Popup from './Popup';
+import { usePair } from '../hook/pool';
+import { Mypair } from './AddLiquidity';
 
 export default  function ImportLiquidity() {
-  
+  const history = useNavigate()
+  const { currencykeyA, currencykeyB } = useParams();
+  const tokenA = gettokenBykey(currencykeyA!);
+  const tokenB = gettokenBykey(currencykeyB!);
+  const [isactive, pair] = usePair(tokenA, tokenB);
+  if(isactive){
+    if(pair&&pair.balanceOf&&pair.balanceOf>0){
+        const listpair:any =  JSON.parse(localStorage.getItem("listpair") as string)||{};
+        listpair[pair.address] = {
+            address0:pair.token0.address,
+            address1:pair.token1.address,
+          }
+        localStorage.setItem("listpair", JSON.stringify(listpair));
+    }
+  }
   return (
     <div className="row justify-content-md-center mt-4">
     <Container >
@@ -20,15 +39,17 @@ export default  function ImportLiquidity() {
              back
           </WrapNavLink>
           <TitleText>Import  Pool</TitleText>
-      </Row>  
-      <SelectT name="ETH" image="/app/assets/img/icon/1.png" Field={Field.INPUT}/>
+      </Row>
+      <SelectT token={tokenA} Field={Field.INPUT} />
             <svg  style={{ "margin":"20 auto" }}  width="33" height="26" viewBox="0 0 33 26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="16" y="8" width="2" height="10" rx="1" fill="#7B6666"/>
             <rect x="12" y="14" width="2" height="10" rx="1" transform="rotate(-90 12 14)" fill="#7B6666"/>
             </svg>
-          <SelectT name="BTC" image="/app/assets/img/icon/18.png" Field={Field.OUTPUT}/>
+      <SelectT token={tokenB} Field={Field.OUTPUT} />
+      {isactive}
+      {isactive=='active'&&<Mypair pair={pair}/>}
           {/* Select a token */}
-    <Position >
+    {/* <Position >
     <p>Your position</p>
     <div>
                 <p>ETH/BTC:</p>
@@ -46,22 +67,37 @@ export default  function ImportLiquidity() {
                 <p>ETH :</p>
                 <p>0.999999</p>
             </div>
-            
-    </Position> 
-    {/* Select a token to find your */} 
+
+    </Position> */}
+    <Popup  Active={{
+        INPUT:tokenA,
+        OUTPUT:tokenB,
+      }}hadderCLick={(field,token)=>{
+        const key1 = token.type=='native'?token.symbol:token.address;
+        if(field=='INPUT'){
+             if(key1!=currencykeyA&&key1!=currencykeyB){
+               history(`/app/view/liquidity/import/${key1}/${currencykeyB}`, { replace: true })
+             }
+        }else{
+             if(key1!=currencykeyB&&key1!=currencykeyA){
+              history(`/app/view/liquidity/import/${currencykeyA}/${key1}`, { replace: true })
+            }
+        }
+      }}/>
     </Container>
     </div>
   );
 }
 
-function SelectT({name,image}:any){
-  return (<Selecttoken>
+function SelectT( {token,Field}:any){
+  const {onUserChangpopup} = useApplicationHandlers()
+
+  return (<Selecttoken onClick={()=>onUserChangpopup(true,activePoppup.Import[Field as Field])}>
     <Nametoken>
     <div className="imageInfo">
-      <img src={image}/>
-        
+      <img src={token?token.logoURI:''}/>
       </div>
-      <div> {name} </div>
+      <div> {token?token.symbol:''} </div>
     </Nametoken>
     <ManageTogle >
           <svg width="41" height="23" viewBox="0 0 41 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +107,7 @@ function SelectT({name,image}:any){
       </ManageTogle>
     </Selecttoken>)
 
-  
+
 }
 
 const Position = styled.div`
